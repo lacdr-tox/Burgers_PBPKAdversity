@@ -1,0 +1,415 @@
+---
+title: "In vitro adversity models"
+author: "Elsje Burgers"
+date: "2025-06-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load packages
+```{r}
+library(deSolve)
+library(tidyverse)
+```
+
+
+```{r}
+rm(list=ls())
+
+SaveFigures = 0
+
+dose_names = as_labeller(c(
+  `0.01`   = "0~mu*M~NIT",
+  `6`   = "6~mu*M~NIT",
+  `30`  = "30~mu*M~NIT",
+  `60`  = "60~mu*M~NIT",
+  `120`  = "120~mu*M~NIT",
+  `10.1`   = "10.1~mu*M~DIC",
+  `50.5`   = "50.5~mu*M~DIC",
+  `101`  = "101~mu*M~DIC",
+  `202`  = "202~mu*M~DIC",
+  `403.99`  = "404~mu*M~DIC",
+  `6.59`  = "6.6~mu*M~KET",
+  `32.97`  = "33~mu*M~KET",
+  `65.94`  = "65.9~mu*M~KET"),
+  label_parsed)
+
+var_names = as_labeller(c(
+  `apoptotic_cells`   = "Apoptotic~cells",
+  `live_cells`   = "Live~cells",
+  `total_cells`  = "Total~cells"),
+  label_parsed)
+
+source("model_functions.R")
+```
+
+# Model functions
+```{r}
+model <- function(t, inistate, parameters) {
+  with(as.list(c(inistate, parameters)), {
+    dS = -tau1*S
+    dATF4 = buildA4Base + V_A4S * sc_ISR * Compound - degradA4 * ATF4
+    dCHOP = Vmax_C * ((ATF4**nC)/(K_C**nC + ATF4**nC)) - degradC * CHOP
+    dKEAP1 =  - (k_K1_mod*sc_OSR*Compound*KEAP1) + (k_K1_unmod*modified_K1)
+    dmodified_K1 = (k_K1_mod*sc_OSR*Compound*KEAP1) - (k_K1_unmod*modified_K1) 
+    dNRF2 = buildN2Base + V_N2A4*ATF4 - V_degN2*(KEAP1*NRF2) - degradN2* NRF2
+    dSRXN1 = buildS1Base + Vmax_S1 * ((NRF2**nS1)/(K_S1**nS1 + NRF2**nS1)) - degradS1 * SRXN1
+    dCompound = S - degrade*Compound**n
+    dGSH = buildGBase + Vmax_G * ((NRF2**nG)/(K_G**nG + NRF2**nG)) - degradG * (degGA4 * ATF4 + 1) * GSH
+    dcells = growth_rate/(1 + (Ki*(ATF4-0.30702814))) * (1-((cells+apop)/CM))*cells - (death_byC_rate/(1 + (q*GSH))) * (CHOP-0.378908704)*cells - death_rate*cells
+    dapop = (death_byC_rate/(1 + (q*GSH))) * (CHOP-0.378908704) * cells - float_rate * apop + death_rate*cells
+    list(c(dS, dATF4, dCHOP, dKEAP1, dmodified_K1, dNRF2, dSRXN1, dCompound, dGSH, dcells, dapop))
+  })
+}
+
+model2 <- function(t, inistate, parameters) {
+  with(as.list(c(inistate, parameters)), {
+    dS = -tau1*S
+    dATF4 = buildA4Base + V_A4S * sc_ISR * Compound - degradA4 * ATF4
+    dCHOP = Vmax_C * ((ATF4**nC)/(K_C**nC + ATF4**nC)) - degradC * CHOP
+    dKEAP1 =  - (k_K1_mod*sc_OSR*Compound*KEAP1) + (k_K1_unmod*modified_K1)
+    dmodified_K1 = (k_K1_mod*sc_OSR*Compound*KEAP1) - (k_K1_unmod*modified_K1) 
+    dNRF2 = buildN2Base + V_N2A4*ATF4 - V_degN2*(KEAP1*NRF2) - degradN2* NRF2
+    dSRXN1 = buildS1Base + Vmax_S1 * ((NRF2**nS1)/(K_S1**nS1 + NRF2**nS1)) - degradS1 * SRXN1
+    dCompound = S - degrade*Compound**n
+    dGSH = buildGBase + Vmax_G * ((NRF2**nG)/(K_G**nG + NRF2**nG)) - degradG * (degGA4 * ATF4 + 1) * GSH
+    dcells = (growth_rate/(1 + (Ki*(ATF4-0.30702814)))) * (1-(cells/CM))*cells - (death_byA_rate/(1 + (q*GSH))) *
+      (ATF4-0.30702814) *cells - death_rate*cells
+    dapop = (death_byA_rate/(1 + (q*GSH))) * (ATF4-0.30702814) * cells - float_rate * apop + death_rate*cells
+    list(c(dS, dATF4, dCHOP, dKEAP1, dmodified_K1, dNRF2, dSRXN1, dCompound, dGSH, dcells, dapop))
+  })
+}
+```
+
+# Parameters
+```{r}
+tspan <-  seq(0, 62, by = 1)
+
+
+inistate = c(ATF4 = 0.30702814, 
+             CHOP = 0.378908704, 
+             KEAP1 = 1, 
+             modified_K1 = 0, 
+             NRF2 = 0.557889857, 
+             SRXN1 = 0.467017171, 
+             Compound = 0,
+             GSH = 1,
+             cells = 0.974630965,
+             apop = 0.025369035)
+
+baseparms_NIT = read.csv(file = "NITparms_EB.csv", header=TRUE)
+baseparms_DIC = read.csv(file = "DICparms_EB.csv", header=TRUE)
+baseparms_KET = read.csv(file = "KETparms_EB.csv", header=TRUE)
+
+```
+
+# DMSO & NIT model simulation M1
+```{r}
+measurements_NIT = read.csv(file = "ANVdata_4fit_NITDMSO_2024-07-18.csv", header=TRUE)
+ 
+mean_NIT = measurements_NIT %>%
+  group_by(StateVar, dose_uMadj, timepoints)%>%
+  summarise(mean = mean(data4modelInterpol, na.rm=TRUE), 
+            sd = sd(data4modelInterpol, na.rm=TRUE))
+
+doses_NIT = unique(measurements_NIT$dose_uMadj)
+
+M1parms_NIT = baseparms_NIT %>%
+  rbind(read.csv("..//ParameterCalibration//Adversity_calibration//20250604_170829_EB_NITDMSOModel_parameterEstimates_parmset20_cost_56.20.csv") %>%
+          select(X, est_value)) %>%
+  add_row(X = "q", est_value = 0)
+
+EC_NIT = c(0, baseparms_NIT$est_value[baseparms_NIT$X=="EC_6"],
+           baseparms_NIT$est_value[baseparms_NIT$X=="EC_30"],
+           baseparms_NIT$est_value[baseparms_NIT$X=="EC_60"],
+           baseparms_NIT$est_value[baseparms_NIT$X=="EC_120"])
+  
+simulation_NIT1 = run_model(model, tspan, doses_NIT, EC_NIT, inistate, M1parms_NIT$X, M1parms_NIT$est_value) %>%
+  mutate(StateVar = ifelse(StateVar == "cells", "live_cells", 
+                           ifelse(StateVar == "apop", "apoptotic_cells", StateVar))) %>%
+  pivot_wider(values_from = value, names_from = StateVar) %>%
+  mutate(total_cells = live_cells + apoptotic_cells) %>%
+  pivot_longer(c(total_cells, live_cells, apoptotic_cells), values_to = "value", names_to = "StateVar")
+
+plot_NIT1 = ggplot(NULL) + theme_bw() +
+  # data mean & sd
+  geom_ribbon(data = filter(mean_NIT, timepoints>1), aes(x = timepoints, ymax = mean+sd, ymin = mean-sd, fill = "Mean"), alpha = 0.2) +
+  geom_line(data = filter(mean_NIT, timepoints>1), aes(x = timepoints, y = mean, col = "Mean"), linewidth = 1.5) +
+  #simulation
+  geom_line(data = simulation_NIT1, aes(x = time, y = value, col = "Simulation without GSH"), linewidth = 1.5) +
+  facet_grid(cols = vars(dose_uMadj), rows = vars(StateVar), scales = "free",
+             labeller = labeller(dose_uMadj = dose_names, StateVar = var_names)) + 
+  scale_color_viridis_d(name = "", aesthetics = c("colour", "fill")) +
+  theme(legend.position="bottom") + 
+  xlab("Time (hours)") + ylab("Relative number of cells")
+
+print(plot_NIT1)
+
+```
+
+# DMSO & NIT model simulation M2
+```{r}
+M2parms_NIT = baseparms_NIT %>%
+  rbind(read.csv("..//ParameterCalibration//Adversity_calibration//20250605_135045_EB_NITDMSOModel_parameterEstimates_parmset2_cost_56.46.csv") %>%
+          select(X, est_value)) %>%
+  add_row(X = "q", est_value = 0.33)
+
+simulation_NIT2 = run_model(model, tspan, doses_NIT, EC_NIT, inistate, M2parms_NIT$X, M2parms_NIT$est_value) %>%
+  mutate(StateVar = ifelse(StateVar == "cells", "live_cells", 
+                           ifelse(StateVar == "apop", "apoptotic_cells", StateVar))) %>%
+  pivot_wider(values_from = value, names_from = StateVar) %>%
+  mutate(total_cells = live_cells + apoptotic_cells) %>%
+  pivot_longer(c(total_cells, live_cells, apoptotic_cells), values_to = "value", names_to = "StateVar")
+
+plot_NIT2 = ggplot(NULL) + theme_bw() +
+  # data mean & sd
+  geom_ribbon(data = filter(mean_NIT, timepoints>1), aes(x = timepoints, ymax = mean+sd, ymin = mean-sd, fill = "Mean"), alpha = 0.2) +
+  geom_line(data = filter(mean_NIT, timepoints>1), aes(x = timepoints, y = mean, col = "Mean"), linewidth = 1.5) +
+  #simulation
+  geom_line(data = simulation_NIT2, aes(x = time, y = value, col = "Simulation with GSH"), linewidth = 1.5) +
+  facet_grid(cols = vars(dose_uMadj), rows = vars(StateVar), scales = "free",
+             labeller = labeller(dose_uMadj = dose_names, StateVar = var_names)) + 
+  scale_color_viridis_d(name = "", aesthetics = c("colour", "fill")) +
+  theme(legend.position="bottom") + 
+  xlab("Time (hours)") + ylab("Relative number of cells")
+
+print(plot_NIT2)
+
+```
+
+
+# DIC model  
+```{r}
+measurements_DIC = read.csv(file = "ANVdata_4fit_DIC_2024-07-18.csv", header=TRUE)
+ 
+mean_DIC = measurements_DIC %>%
+  group_by(StateVar, dose_uMadj, timepoints)%>%
+  summarise(mean = mean(data4modelInterpol, na.rm=TRUE), 
+            sd = sd(data4modelInterpol, na.rm=TRUE))
+
+doses_DIC = unique(measurements_DIC$dose_uMadj)
+
+EC_DIC = c(baseparms_DIC$est_value[baseparms_DIC$X=="EC_10"],
+           baseparms_DIC$est_value[baseparms_DIC$X=="EC_50"],
+           baseparms_DIC$est_value[baseparms_DIC$X=="EC_101"],
+           baseparms_DIC$est_value[baseparms_DIC$X=="EC_202"],
+           baseparms_DIC$est_value[baseparms_DIC$X=="EC_404"])
+
+M2parms_DIC = baseparms_DIC %>%
+  rbind(read.csv("..//ParameterCalibration//Adversity_calibration//20250605_135045_EB_NITDMSOModel_parameterEstimates_parmset2_cost_56.46.csv") %>%
+          select(X, est_value)) %>%
+  add_row(X = "q", est_value = 0.33)
+
+M3parms_DIC = M2parms_DIC
+M3parms_DIC$est_value[M3parms_DIC$X == "death_byC_rate"] = 0.028705982
+  
+simulation_DIC2 = run_model(model, tspan, doses_DIC, EC_DIC, inistate, M2parms_DIC$X, M2parms_DIC$est_value) %>%
+  mutate(StateVar = ifelse(StateVar == "cells", "live_cells", 
+                           ifelse(StateVar == "apop", "apoptotic_cells", StateVar))) %>%
+  pivot_wider(values_from = value, names_from = StateVar) %>%
+  mutate(total_cells = live_cells + apoptotic_cells) %>%
+  pivot_longer(c(total_cells, live_cells, apoptotic_cells), values_to = "value", names_to = "StateVar")
+
+simulation_DIC3 = run_model(model, tspan, doses_DIC, EC_DIC, inistate, M3parms_DIC$X, M3parms_DIC$est_value) %>%
+  mutate(StateVar = ifelse(StateVar == "cells", "live_cells", 
+                           ifelse(StateVar == "apop", "apoptotic_cells", StateVar))) %>%
+  pivot_wider(values_from = value, names_from = StateVar) %>%
+  mutate(total_cells = live_cells + apoptotic_cells) %>%
+  pivot_longer(c(total_cells, live_cells, apoptotic_cells), values_to = "value", names_to = "StateVar")
+
+selection_DIC = c(50.5, 202)
+
+plot_DIC = ggplot(NULL) + theme_bw() +
+  # data mean & sd
+  geom_ribbon(data = filter(mean_DIC, timepoints>1 & dose_uMadj %in% selection_DIC), 
+              aes(x = timepoints, ymax = mean+sd, ymin = mean-sd, fill = "Mean"), alpha = 0.2) +
+  geom_line(data = filter(mean_DIC, timepoints>1& dose_uMadj %in% selection_DIC), 
+            aes(x = timepoints, y = mean, col = "Mean"), linewidth = 1.5) +
+  #simulation
+  geom_line(data = filter(simulation_DIC2, dose_uMadj %in% selection_DIC), 
+            aes(x = time, y = value, col = "Simulation based \n on NIT model"), linewidth = 1.5) +
+  geom_line(data = filter(simulation_DIC3, dose_uMadj %in% selection_DIC),
+            aes(x = time, y = value, col = "Simulation with increased \n apoptosis via CHOP"), linewidth = 1.5) +
+  facet_grid(cols = vars(dose_uMadj), rows = vars(StateVar), scales = "free",
+             labeller = labeller(dose_uMadj = dose_names, StateVar = var_names)) + 
+  scale_color_viridis_d(name = "", aesthetics = c("colour", "fill")) +
+  theme(legend.position="bottom") + 
+  xlab("Time (hours)") + ylab("Relative number of cells")
+
+print(plot_DIC)
+
+plot_DIC_supl = ggplot(NULL) + theme_bw() +
+  # data mean & sd
+  geom_ribbon(data = filter(mean_DIC, timepoints>1 & !dose_uMadj %in% selection_DIC), 
+              aes(x = timepoints, ymax = mean+sd, ymin = mean-sd, fill = "Mean"), alpha = 0.2) +
+  geom_line(data = filter(mean_DIC, timepoints>1& !dose_uMadj %in% selection_DIC), 
+            aes(x = timepoints, y = mean, col = "Mean"), linewidth = 1.5) +
+  #simulation
+  geom_line(data = filter(simulation_DIC2, !dose_uMadj %in% selection_DIC), 
+            aes(x = time, y = value, col = "Simulation based \n on NIT model"), linewidth = 1.5) +
+  geom_line(data = filter(simulation_DIC3, !dose_uMadj %in% selection_DIC), 
+            aes(x = time, y = value, col = "Simulation with increased \n apoptosis via CHOP"), linewidth = 1.5) +
+  facet_grid(cols = vars(dose_uMadj), rows = vars(StateVar), scales = "free",
+             labeller = labeller(dose_uMadj = dose_names, StateVar = var_names)) + 
+  scale_color_viridis_d(name = "", aesthetics = c("colour", "fill")) +
+  theme(legend.position="bottom") + 
+  xlab("Time (hours)") + ylab("Relative number of cells")
+
+print(plot_DIC_supl)
+
+```
+
+# KET model  
+```{r}
+measurements_KET = read.csv(file = "ANVdata_4fit_KET_2024-07-18.csv", header=TRUE)
+ 
+mean_KET = measurements_KET %>%
+  group_by(StateVar, dose_uMadj, timepoints)%>%
+  summarise(mean = mean(data4modelInterpol, na.rm=TRUE), 
+            sd = sd(data4modelInterpol, na.rm=TRUE))
+
+doses_KET = unique(measurements_KET$dose_uMadj)
+
+EC_KET = c(baseparms_KET$est_value[baseparms_KET$X=="EC_7"],
+           baseparms_KET$est_value[baseparms_KET$X=="EC_33"],
+           baseparms_KET$est_value[baseparms_KET$X=="EC_66"])
+
+M2parms_KET = baseparms_KET %>%
+  rbind(read.csv("..//ParameterCalibration//Adversity_calibration//20250605_135045_EB_NITDMSOModel_parameterEstimates_parmset2_cost_56.46.csv") %>% 
+          select(X, est_value)) %>%
+  add_row(X = "q", est_value = 0.33)
+
+M4parms_KET = M2parms_KET %>%
+  add_row(X = "death_byA_rate", est_value = 0.016506684)
+
+simulation_KET2 = run_model(model, tspan, doses_KET, EC_KET, inistate, M2parms_KET$X, M2parms_KET$est_value) %>%
+  mutate(StateVar = ifelse(StateVar == "cells", "live_cells", 
+                           ifelse(StateVar == "apop", "apoptotic_cells", StateVar))) %>%
+  pivot_wider(values_from = value, names_from = StateVar) %>%
+  mutate(total_cells = live_cells + apoptotic_cells) %>%
+  pivot_longer(c(total_cells, live_cells, apoptotic_cells), values_to = "value", names_to = "StateVar")
+
+simulation_KET4 = run_model(model2, tspan, doses_KET, EC_KET, inistate, M4parms_KET$X, M4parms_KET$est_value) %>%
+  mutate(StateVar = ifelse(StateVar == "cells", "live_cells", 
+                           ifelse(StateVar == "apop", "apoptotic_cells", StateVar))) %>%
+  pivot_wider(values_from = value, names_from = StateVar) %>%
+  mutate(total_cells = live_cells + apoptotic_cells) %>%
+  pivot_longer(c(total_cells, live_cells, apoptotic_cells), values_to = "value", names_to = "StateVar")
+
+selection_KET = c(6.59, 65.94)
+
+plot_KET = ggplot(NULL) + theme_bw() +
+  # data mean & sd
+  geom_ribbon(data = filter(mean_KET, timepoints>1 & dose_uMadj %in% selection_KET), 
+              aes(x = timepoints, ymax = mean+sd, ymin = mean-sd, fill = "Mean"), alpha = 0.2) +
+  geom_line(data = filter(mean_KET, timepoints>1& dose_uMadj %in% selection_KET), 
+            aes(x = timepoints, y = mean, col = "Mean"), linewidth = 1.5) +
+  #simulation
+  geom_line(data = filter(simulation_KET2, dose_uMadj %in% selection_KET), 
+            aes(x = time, y = value, col = "Simulation based \n on NIT model"), linewidth = 1.5) +
+  geom_line(data = filter(simulation_KET4, dose_uMadj %in% selection_KET),
+            aes(x = time, y = value, col = "Simulation with apoptosis \n via ATF4"), linewidth = 1.5) +
+  facet_grid(cols = vars(dose_uMadj), rows = vars(StateVar), scales = "free",
+             labeller = labeller(dose_uMadj = dose_names, StateVar = var_names)) + 
+  scale_color_viridis_d(name = "", aesthetics = c("colour", "fill")) +
+  theme(legend.position="bottom") + 
+  xlab("Time (hours)") + ylab("Relative number of cells")
+
+print(plot_KET)
+
+plot_KET_supl = ggplot(NULL) + theme_bw() +
+  # data mean & sd
+  geom_ribbon(data = filter(mean_KET, timepoints>1 & !dose_uMadj %in% selection_KET), 
+              aes(x = timepoints, ymax = mean+sd, ymin = mean-sd, fill = "Mean"), alpha = 0.2) +
+  geom_line(data = filter(mean_KET, timepoints>1& !dose_uMadj %in% selection_KET), 
+            aes(x = timepoints, y = mean, col = "Mean"), linewidth = 1.5) +
+  #simulation
+  geom_line(data = filter(simulation_KET2, !dose_uMadj %in% selection_KET), 
+            aes(x = time, y = value, col = "Simulation"), linewidth = 1.5) +
+  geom_line(data = filter(simulation_KET4, !dose_uMadj %in% selection_KET), 
+            aes(x = time, y = value, col = "Simulation "), linewidth = 1.5) +
+  facet_grid(cols = vars(dose_uMadj), rows = vars(StateVar), scales = "free",
+             labeller = labeller(dose_uMadj = dose_names, StateVar = var_names)) + 
+  scale_color_viridis_d(name = "", aesthetics = c("colour", "fill")) +
+  theme(legend.position="bottom") + guides(color = guide_legend(nrow=2, byrow = TRUE)) +
+  xlab("Time (hours)") + ylab("Relative number of cells")
+
+print(plot_KET_supl)
+
+```
+
+# Figures stress pathway activation
+```{r}
+simulation_NIT_pathway = simulation_NIT2 %>%
+  select(-c(StateVar, value, S, Compound)) %>%
+  pivot_longer(cols = 3:9, names_to = "variable", values_to = "value") %>%
+  mutate(variable = ifelse(variable == "modified_K1", "modified KEAP1", variable)) %>%
+  mutate(dose_uMadj = round(dose_uMadj, digits = 1))
+
+simulation_DIC_pathway = simulation_DIC3 %>%
+  select(-c(StateVar, value, S, Compound)) %>%
+  pivot_longer(cols = 3:9, names_to = "variable", values_to = "value") %>%
+  mutate(variable = ifelse(variable == "modified_K1", "modified KEAP1", variable)) %>%
+  mutate(dose_uMadj = round(dose_uMadj, digits = 1))
+
+simulation_KET_pathway = simulation_KET4 %>%
+  select(-c(StateVar, value, S, Compound)) %>%
+  pivot_longer(cols = 3:9, names_to = "variable", values_to = "value") %>%
+  mutate(variable = ifelse(variable == "modified_K1", "modified KEAP1", variable)) %>%
+  mutate(dose_uMadj = round(dose_uMadj, digits = 1))
+  
+plot_pathwayNIT = ggplot(data = simulation_NIT_pathway) + theme_bw() +
+  geom_line(aes(x = time, y = value, colour = as.factor(dose_uMadj)), linewidth = 1.5) +
+  facet_wrap(~variable, scales = "free_x", nrow = 2) +
+  scale_color_viridis_d(name = expression(paste("Concentration NIT (", mu, "M)")), 
+                                          aesthetics = c("colour", "fill")) +
+  xlab("Time (hours)") + ylab("Amount (a.u.)")
+  
+print(plot_pathwayNIT)
+
+plot_pathwayDIC = ggplot(data = simulation_DIC_pathway) + theme_bw() +
+  geom_line(aes(x = time, y = value, colour = as.factor(dose_uMadj)), linewidth = 1.5) +
+  facet_wrap(~variable, scales = "free_x", nrow = 2) +
+  scale_color_viridis_d(name = expression(paste("Concentration DIC (", mu, "M)")), 
+                                          aesthetics = c("colour", "fill")) +
+  xlab("Time (hours)") + ylab("Amount (a.u.)")
+  
+print(plot_pathwayDIC)
+
+plot_pathwayKET = ggplot(data = simulation_KET_pathway) + theme_bw() +
+  geom_line(aes(x = time, y = value, colour = as.factor(dose_uMadj)), linewidth = 1.5) +
+  facet_wrap(~variable, scales = "free_x", nrow = 2) +
+  scale_color_viridis_d(name = expression(paste("Concentration KET (", mu, "M)")), 
+                                          aesthetics = c("colour", "fill")) +
+  xlab("Time (hours)") + ylab("Amount (a.u.)")
+  
+print(plot_pathwayKET)
+```
+
+
+# Save Figures
+```{r}
+if(SaveFigures){
+  ggsave("Figure_NIT1.svg", plot = plot_NIT1, path = "Figures", width = 20,
+         height = 14, units = "cm", dpi = 300)
+  ggsave("Figure_NIT2.svg", plot = plot_NIT2, path = "Figures", width = 20,
+         height = 14, units = "cm", dpi = 300)
+  ggsave("Figure_DIC.svg", plot = plot_DIC, path = "Figures", width = 10.5,
+         height = 14, units = "cm", dpi = 300)
+  ggsave("Figure_DIC_supl.svg", plot = plot_DIC_supl, path = "Figures", width = 14,
+         height = 14.2, units = "cm", dpi = 300)
+  ggsave("Figure_KET.svg", plot = plot_KET, path = "Figures", width = 10.5,
+         height = 14, units = "cm", dpi = 300)
+  ggsave("Figure_KET_supl.svg", plot = plot_KET_supl, path = "Figures", width = 6,
+         height = 15, units = "cm", dpi = 300)
+  ggsave("Figure_pathwayNIT.svg", plot = plot_pathwayNIT, path = "Figures", width = 21,
+         height = 9, units = "cm", dpi = 300)
+  ggsave("Figure_pathwayDIC.svg", plot = plot_pathwayDIC, path = "Figures", width = 21,
+         height = 9, units = "cm", dpi = 300)
+  ggsave("Figure_pathwayKET.svg", plot = plot_pathwayKET, path = "Figures", width = 21,
+         height = 9, units = "cm", dpi = 300)
+}
+```
