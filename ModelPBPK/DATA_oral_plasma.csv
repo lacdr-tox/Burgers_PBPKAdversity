@@ -1,0 +1,151 @@
+time,conc,sd,dose,treatment,variable,species,exposure_route,Study,Gender,Note,,,
+0.5,0,0,50,DIC,cplasma,Human,oraldose,Willis,Female,,,,
+1,0.2,0.54,50,DIC,cplasma,Human,oraldose,Willis,Female,,,,
+1.5,0.1,0.19,50,DIC,cplasma,Human,oraldose,Willis,Female,,,,
+2,0.86,0.14,50,DIC,cplasma,Human,oraldose,Willis,Female,,,,
+2.5,0.71,0.75,50,DIC,cplasma,Human,oraldose,Willis,Female,,,,
+3,0.69,0.83,50,DIC,cplasma,Human,oraldose,Willis,Female,,,,
+3.5,0.24,0.24,50,DIC,cplasma,Human,oraldose,Willis,Female,,,,
+4,0.11,0.84,50,DIC,cplasma,Human,oraldose,Willis,Female,,,,
+4.5,0.215,0.47,50,DIC,cplasma,Human,oraldose,Willis,Female,,,,
+5,0.095,0.12,50,DIC,cplasma,Human,oraldose,Willis,Female,,,,
+5.5,0.054,0.061,50,DIC,cplasma,Human,oraldose,Willis,Female,,,,
+6,0.035,0.043,50,DIC,cplasma,Human,oraldose,Willis,Female,,,,
+6.5,0.025,0.035,50,DIC,cplasma,Human,oraldose,Willis,Female,,,,
+7,0.015,0.013,50,DIC,cplasma,Human,oraldose,Willis,Female,,,,
+8,0.011,0.011,50,DIC,cplasma,Human,oraldose,Willis,Female,,,,
+9,0.003,0.007,50,DIC,cplasma,Human,oraldose,Willis,Female,,,,
+0.5,0.664,,50,DIC,cplasma,Human,oraldose,Zhang,Male,Extracted with WebPlotDigitizer,,,
+1,0.52,,50,DIC,cplasma,Human,oraldose,Zhang,Male,Extracted with WebPlotDigitizer,,,
+1.5,0.36,,50,DIC,cplasma,Human,oraldose,Zhang,Male,Extracted with WebPlotDigitizer,,,
+2,0.355,,50,DIC,cplasma,Human,oraldose,Zhang,Male,Extracted with WebPlotDigitizer,,,
+2.5,0.192,,50,DIC,cplasma,Human,oraldose,Zhang,Male,Extracted with WebPlotDigitizer,,,
+3,0.14,,50,DIC,cplasma,Human,oraldose,Zhang,Male,Extracted with WebPlotDigitizer,,,
+4,0.051,,50,DIC,cplasma,Human,oraldose,Zhang,Male,Extracted with WebPlotDigitizer,,,
+6,0.018,,50,DIC,cplasma,Human,oraldose,Zhang,Male,Extracted with WebPlotDigitizer,,,
+8,0.012,,50,DIC,cplasma,Human,oraldose,Zhang,Male,Extracted with WebPlotDigitizer,,,
+0.041,6.41302754,,18,DIC,cplasma,Rat,oraldose,Leon-Ryes,Female,Extracted with WebPlotDigitizer,,,
+0.083,7.346217128,,18,DIC,cplasma,Rat,oraldose,Leon-Ryes,Female,Extracted with WebPlotDigitizer,,,
+0.33,8.089761098,,18,DIC,cplasma,Rat,oraldose,Leon-Ryes,Female,Extracted with WebPlotDigitizer,,,
+0.5,5.46897129,,18,DIC,cplasma,Rat,oraldose,Leon-Ryes,Female,Extracted with WebPlotDigitizer,,,
+0.75,3.849157697,,18,DIC,cplasma,Rat,oraldose,Leon-Ryes,Female,Extracted with WebPlotDigitizer,,,
+1,3.342988377,,18,DIC,cplasma,Rat,oraldose,Leon-Ryes,Female,Extracted with WebPlotDigitizer,,,
+2,2.894464815,,18,DIC,cplasma,Rat,oraldose,Leon-Ryes,Female,Extracted with WebPlotDigitizer,,,
+4,2.905405087,,18,DIC,cplasma,Rat,oraldose,Leon-Ryes,Female,Extracted with WebPlotDigitizer,,,
+6,2.188232971,,18,DIC,cplasma,Rat,oraldose,Leon-Ryes,Female,Extracted with WebPlotDigitizer,,,
+8,1.445352594,,18,DIC,cplasma,Rat,oraldose,Leon-Ryes,Female,Extracted with WebPlotDigitizer,,,
+0.03,0.0387,0.0129,2,DIC,cplasma,Rat,oraldose,Yuan,Male,,,,
+0.08,0.4181,0.1374,2,DIC,cplasma,Rat,oraldose,Yuan,Male,,,,
+0.17,1.1956,0.2184,2,DIC,cplasma,Rat,oraldose,Yuan,Male,,,,
+0.25,1.0198,0.1238,2,DIC,cplasma,Rat,oraldose,Yuan,Male,,,,
+0.5,0.6494,0.0972,2,DIC,cplasma,Rat,oraldose,Yuan,Male,,,,
+1,0.4164,0.0966,2,DIC,cplasma,Rat,oraldose,Yuan,Male,,,,
+2,0.4029,0.1785,2,DIC,cplasma,Rat,oraldose,Yuan,Male,,,,
+4,0.3687,0.0627,2,DIC,cplasma,Rat,oraldose,Yuan,Male,,,,
+6,0.1098,0.0292,2,DIC,cplasma,Rat,oraldose,Yuan,Male,,,,
+8,0.0313,0.0131,2,DIC,cplasma,Rat,oraldose,Yuan,Male,,,,
+0.5,0.679709332,,100,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+1,1.210119566,,100,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+1.5,1.042753889,,100,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+2,0.796177868,,100,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+3,0.548774521,,100,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+4,0.316964118,,100,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+6,0.105740759,,100,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+8,0.035938137,,100,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+10,0.021147183,,100,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+24,0.002397717,,100,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+32,0.001037915,,100,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+0.5,1.944862439,,200,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+1,3.130566226,,200,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+1.5,2.874655847,,200,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+2,2.368158545,,200,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+3,1.572653322,,200,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+4,1.20450354,,200,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+6,0.605087501,,200,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+8,0.206930695,,200,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+10,0.099845064,,200,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+24,0.025709937,,200,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+48,0.003382929,,200,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+0.5,2.438963984,,400,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+1,5.078364927,,400,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+1.5,5.957776061,,400,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+2,4.946250353,,400,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+3,3.999633544,,400,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+4,2.748256343,,400,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+6,1.681083268,,400,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+8,0.876518209,,400,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+10,0.48475454,,400,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+24,0.090272518,,400,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+32,0.047068166,,400,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+48,0.017073526,,400,KET,cplasma,Human,oraldose,Heel,Unspecified,Extracted with WebPlotDigitizer,,,tablet
+0.5,1.71,2.55,200,KET,cplasma,Human,oraldose,Huang,Male,,,,tablet
+1,2.61,2.12,200,KET,cplasma,Human,oraldose,Huang,Male,,,,tablet
+1.5,3.1,2.06,200,KET,cplasma,Human,oraldose,Huang,Male,,,,tablet
+2,3.26,1.96,200,KET,cplasma,Human,oraldose,Huang,Male,,,,tablet
+3,2.7,1.7,200,KET,cplasma,Human,oraldose,Huang,Male,,,,tablet
+4,1.72,1.1,200,KET,cplasma,Human,oraldose,Huang,Male,,,,tablet
+6,0.67,0.51,200,KET,cplasma,Human,oraldose,Huang,Male,,,,tablet
+8,0.34,0.34,200,KET,cplasma,Human,oraldose,Huang,Male,,,,tablet
+12,0.11,0.2,200,KET,cplasma,Human,oraldose,Huang,Male,,,,tablet
+24,0.01,0.01,200,KET,cplasma,Human,oraldose,Huang,Male,,,,tablet
+0.25,22.81731978,1.459811693,26,KET,cplasma,Rat,oraldose,Jede,Female,Extracted with WebPlotDigitizer,,,
+0.5,30.76041282,1.653022064,26,KET,cplasma,Rat,oraldose,Jede,Female,Extracted with WebPlotDigitizer,,,
+1,35.18278354,1.073390951,26,KET,cplasma,Rat,oraldose,Jede,Female,Extracted with WebPlotDigitizer,,,
+2,31.61912558,5.409890393,26,KET,cplasma,Rat,oraldose,Jede,Female,Extracted with WebPlotDigitizer,,,
+4,28.1413389,4.100353432,26,KET,cplasma,Rat,oraldose,Jede,Female,Extracted with WebPlotDigitizer,,,
+6,29.64408623,5.882182411,26,KET,cplasma,Rat,oraldose,Jede,Female,Extracted with WebPlotDigitizer,,,
+24,7.041420118,4.852071006,26,KET,cplasma,Rat,oraldose,Jede,Female,Extracted with WebPlotDigitizer,,,
+0.2,0.200466309,,5,KET,cplasma,Rat,oraldose,Remmel,Male,"Not fasted, one rat",,,
+0.36,0.622868606,,5,KET,cplasma,Rat,oraldose,Remmel,Male,"Not fasted, one rat",,,
+0.8,0.484111566,,5,KET,cplasma,Rat,oraldose,Remmel,Male,"Not fasted, one rat",,,
+1,0.342986727,,5,KET,cplasma,Rat,oraldose,Remmel,Male,"Not fasted, one rat",,,
+1.5,0.249974773,,5,KET,cplasma,Rat,oraldose,Remmel,Male,"Not fasted, one rat",,,
+4,0.121004466,,5,KET,cplasma,Rat,oraldose,Remmel,Male,"Not fasted, one rat",,,
+0.5,27.78,4.61,150,KET,cplasma,Rat,oraldose,Riley,Male,Not noted if fasted,,,
+1,20.52,6.95,150,KET,cplasma,Rat,oraldose,Riley,Male,Not noted if fasted,,,
+2,35.47,3.48,150,KET,cplasma,Rat,oraldose,Riley,Male,Not noted if fasted,,,
+4,44.91,15.85,150,KET,cplasma,Rat,oraldose,Riley,Male,Not noted if fasted,,,
+8,24.43,5.45,150,KET,cplasma,Rat,oraldose,Riley,Male,Not noted if fasted,,,
+24,16.4,4.22,150,KET,cplasma,Rat,oraldose,Riley,Male,Not noted if fasted,,,
+48,1.42,1.51,150,KET,cplasma,Rat,oraldose,Riley,Male,Not noted if fasted,,,
+0.25,0.0271,0,50,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+0.5,0.0969,0,50,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+0.75,0.1705,0,50,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+1,0.1822,0,50,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+2,0.3062,0,50,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+4,0.1822,0,50,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+8,0.0233,0,50,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+0.17,0.226,0,100,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+0.22,0.34,0,100,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+0.35,0.37,0,100,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+0.5,0.57,0.06,100,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+0.66,0.83,0,100,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+0.75,0.54,0,100,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+1,0.62,0.21,100,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+1.5,0.65,0.27,100,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+2,0.47,0.32,100,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+2.5,0.6,0,100,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+3,0.42,0.16,100,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+4,0.39,0.15,100,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+5,0.18,0,100,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+6,0.07,0,100,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+8,0.038,0,100,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+1,1.58,0.62,200,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+2,1.08,0.13,200,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+3,0.88,0.3,200,NIT,cplasma,Human,oraldose,Wijma,Unspecified,,,,
+0.08,0.25,0.18,10,NIT,cplasma,Rat,oraldose,Wang,Female,Extracted with WebPlotDigitizer,,,
+0.25,0.288,0.19,10,NIT,cplasma,Rat,oraldose,Wang,Female,Extracted with WebPlotDigitizer,,,
+0.5,0.433,0,10,NIT,cplasma,Rat,oraldose,Wang,Female,Extracted with WebPlotDigitizer,,,
+1,0.584,0,10,NIT,cplasma,Rat,oraldose,Wang,Female,Extracted with WebPlotDigitizer,,,
+2,1.01,0.47,10,NIT,cplasma,Rat,oraldose,Wang,Female,Extracted with WebPlotDigitizer,,,
+4,0.573,0.12,10,NIT,cplasma,Rat,oraldose,Wang,Female,Extracted with WebPlotDigitizer,,,
+6,0.353,0,10,NIT,cplasma,Rat,oraldose,Wang,Female,Extracted with WebPlotDigitizer,,,
+8,0.231,0,10,NIT,cplasma,Rat,oraldose,Wang,Female,Extracted with WebPlotDigitizer,,,
+12,0.14,0,10,NIT,cplasma,Rat,oraldose,Wang,Female,Extracted with WebPlotDigitizer,,,
+0.5,72.3,32.35,150,KET,cliver,Rat,oraldose,Riley,Unspecified,,,,
+1,70.97,17.53,150,KET,cliver,Rat,oraldose,Riley,Unspecified,,,,
+2,90.28,11.85,150,KET,cliver,Rat,oraldose,Riley,Unspecified,,,,
+4,80.39,6.63,150,KET,cliver,Rat,oraldose,Riley,Unspecified,,,,
+8,55.08,4.23,150,KET,cliver,Rat,oraldose,Riley,Unspecified,,,,
+24,16.22,11.16,150,KET,cliver,Rat,oraldose,Riley,Unspecified,,,,
+48,0.71,1.55,150,KET,cliver,Rat,oraldose,Riley,Unspecified,,,,

@@ -1,0 +1,614 @@
+---
+title:  "Coupling PBPK and adversity models"
+author: "Elsje Burgers"
+date:   "2025-07-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load packages
+
+```{r}
+library(tidyverse)
+library(deSolve)
+
+rm(list=ls())
+
+SaveFigures = 1
+```
+
+```{r}
+var_names = as_labeller(c(
+  `apop`        = "Apoptotic~cells",
+  `cells`       = "Live~cells",
+  `total_death` = "Total~apoptotic~cells"),
+  label_parsed)
+
+dose_names_rat_NIT = as_labeller(c(
+  `10`      = "10~mg/kg~NIT",
+  `30`      = "30~mg/kg~NIT",
+  `100`     = "100~mg/kg~NIT"),
+  label_parsed)
+
+dose_names_rat_DIC = as_labeller(c(
+  `1`      = "1~mg/kg~DIC",
+  `3`      = "3~mg/kg~DIC",
+  `10`     = "10~mg/kg~DIC"),
+  label_parsed)
+
+dose_names_rat_KET = as_labeller(c(
+  `10`      = "10~mg/kg~KET",
+  `30`      = "30~mg/kg~KET",
+  `100`     = "100~mg/kg~KET"),
+  label_parsed)
+
+human_treatment = as_labeller(c(
+  `NIT`        = "50~mg~NIT",  
+  `DIC`        = "50~mg~DIC",
+  `KET`        = "200~mg~KET"),
+  label_parsed)
+
+```
+
+# Models
+```{r}
+model <- function(t, inistate, parameters) {
+  with(as.list(c(inistate, parameters)), {
+    cmpnd = sensitivity * sc * scaling_cmpnd * Compound(t)
+    
+    dATF4 = buildA4Base + V_A4S * sc_ISR * cmpnd - degradA4 * ATF4
+    dCHOP = Vmax_C * ((ATF4**nC)/(K_C**nC + ATF4**nC)) - degradC * CHOP
+    dKEAP1 =  - (k_K1_mod*sc_OSR*cmpnd*KEAP1) + (k_K1_unmod*modified_K1)
+    dmodified_K1 = (k_K1_mod*sc_OSR*cmpnd*KEAP1) - (k_K1_unmod*modified_K1) 
+    dNRF2 = buildN2Base + V_N2A4*ATF4 - V_degN2*(KEAP1*NRF2) - degradN2* NRF2
+    dSRXN1 = buildS1Base + Vmax_S1 * ((NRF2**nS1)/(K_S1**nS1 + NRF2**nS1)) - degradS1 * SRXN1
+    dGSH = buildGBase + Vmax_G * ((NRF2**nG)/(K_G**nG + NRF2**nG)) - degradG * (degGA4 * ATF4 + 1) * GSH
+    dcells = growth_rate*beta/(1 + (alpha*Ki*(ATF4-0.30702814))) * (1-(cells/CM))*cells - (death_byC_rate/(1 + (q*GSH))) * (CHOP-0.378908704)*cells
+    dapop = (death_byC_rate/(1 + (q*GSH))) * (CHOP-0.378908704) * cells - float_rate * apop
+    dtotal_death  = (death_byC_rate/(1 + (q*GSH))) * (CHOP-0.378908704) * cells
+    list(c(dATF4, dCHOP, dKEAP1, dmodified_K1, dNRF2, dSRXN1, dGSH, dcells, dapop, dtotal_death))
+  })
+}
+
+model2 <- function(t, inistate, parameters) {
+  with(as.list(c(inistate, parameters)), {
+    cmpnd = sensitivity * sc * scaling_cmpnd * Compound(t)
+    
+    dATF4 = buildA4Base + V_A4S * sc_ISR * cmpnd - degradA4 * ATF4
+    dCHOP = Vmax_C * ((ATF4**nC)/(K_C**nC + ATF4**nC)) - degradC * CHOP
+    dKEAP1 =  - (k_K1_mod*sc_OSR*cmpnd*KEAP1) + (k_K1_unmod*modified_K1)
+    dmodified_K1 = (k_K1_mod*sc_OSR*cmpnd*KEAP1) - (k_K1_unmod*modified_K1) 
+    dNRF2 = buildN2Base + V_N2A4*ATF4 - V_degN2*(KEAP1*NRF2) - degradN2* NRF2
+    dSRXN1 = buildS1Base + Vmax_S1 * ((NRF2**nS1)/(K_S1**nS1 + NRF2**nS1)) - degradS1 * SRXN1
+    dGSH = buildGBase + Vmax_G * ((NRF2**nG)/(K_G**nG + NRF2**nG)) - degradG * (degGA4 * ATF4 + 1) * GSH
+    dcells = (growth_rate*beta/(1 + (alpha*Ki*(ATF4-0.30702814)))) * (1-(cells/CM))*cells - (death_byA_rate/(1 + (q*GSH))) *
+      (ATF4-0.30702814) *cells
+    dapop = (death_byA_rate/(1 + (q*GSH))) * (ATF4-0.30702814) * cells - float_rate * apop
+    dtotal_death = (death_byA_rate/(1 + (q*GSH))) * (ATF4-0.30702814) * cells
+    list(c(dATF4, dCHOP, dKEAP1, dmodified_K1, dNRF2, dSRXN1, dGSH, dcells, dapop, dtotal_death))
+  })
+}
+```
+
+# Parameters
+```{r}
+tspan <-  seq(0, 24*30, by = 1)
+
+inistate = c(ATF4 = 0.30702814, 
+             CHOP = 0.378908704, 
+             KEAP1 = 1, 
+             modified_K1 = 0, 
+             NRF2 = 0.557889857, 
+             SRXN1 = 0.467017171, 
+             GSH = 1,
+             cells = 1,
+             apop = 0,
+             total_death = 0)
+
+parms_NIT = read.csv(file = "coupledNITparms_EB.csv", header=TRUE)
+parms_DIC = read.csv(file = "coupledDICparms_EB.csv", header=TRUE)
+parms_KET = read.csv(file = "coupledKETparms_EB.csv", header=TRUE)
+
+# alpha = 0.25
+```
+
+# Load cliver simulations
+```{r}
+cliver_NIT_male = read.csv(file = "..//ModelPBPK//simu_cliver//NIT_50_mg_30_days_Human_male_regular.csv", header=TRUE)
+cliver_DIC_male = read.csv(file = "..//ModelPBPK//simu_cliver//DIC_50_mg_30_days_Human_male_regular.csv", header=TRUE)
+cliver_KET_male = read.csv(file = "..//ModelPBPK//simu_cliver//KET_200_mg_30_days_Human_male_regular.csv", header=TRUE)
+
+cliver_NIT_female = read.csv(file = "..//ModelPBPK//simu_cliver//NIT_50_mg_30_days_Human_female_regular.csv", header=TRUE)
+cliver_DIC_female = read.csv(file = "..//ModelPBPK//simu_cliver//DIC_50_mg_30_days_Human_female_regular.csv", header=TRUE)
+cliver_KET_female = read.csv(file = "..//ModelPBPK//simu_cliver//KET_200_mg_30_days_Human_female_regular.csv", header=TRUE)
+
+cliver_NIT_maleE = read.csv(file = "..//ModelPBPK//simu_cliver//NIT_50_mg_30_days_Human_male_elderly.csv", header=TRUE)
+cliver_DIC_maleE = read.csv(file = "..//ModelPBPK//simu_cliver//DIC_50_mg_30_days_Human_male_elderly.csv", header=TRUE)
+cliver_KET_maleE = read.csv(file = "..//ModelPBPK//simu_cliver//KET_200_mg_30_days_Human_male_elderly.csv", header=TRUE)
+
+cliver_NIT_femaleE = read.csv(file = "..//ModelPBPK//simu_cliver//NIT_50_mg_30_days_Human_female_elderly.csv", header=TRUE)
+cliver_DIC_femaleE = read.csv(file = "..//ModelPBPK//simu_cliver//DIC_50_mg_30_days_Human_female_elderly.csv", header=TRUE)
+cliver_KET_femaleE = read.csv(file = "..//ModelPBPK//simu_cliver//KET_200_mg_30_days_Human_female_elderly.csv", header=TRUE)
+
+cliver_NIT_rat = read.csv(file = "..//ModelPBPK//simu_cliver//NIT_Rat_30_days.csv", header=TRUE)
+cliver_DIC_rat = read.csv(file = "..//ModelPBPK//simu_cliver//DIC_Rat_30_days.csv", header=TRUE)
+cliver_KET_rat = read.csv(file = "..//ModelPBPK//simu_cliver//KET_Rat_30_days.csv", header=TRUE)
+
+# value we have to multiply Compound with to obtain values in similar unit as for original compound model
+# so to transform mg/L to ng/well, or ng/10^5 cells seeded
+# 1 cell is ~3 pL, 10^5 cells become ~1.25 cells -> 1.25 * 10^5 * 2.85 * 10^-12 --> well has 3.75e-07 L of cells
+scaling_cmpnd = 10^6 * 1.2e5 * 2.85e-12
+
+```
+
+# Plot liver concentrations
+```{r}
+plot_liverc_NITr = ggplot(data = cliver_NIT_rat) + theme_bw() +
+  geom_line(aes(x = time/24, y = value, colour = as.factor(dose))) +
+  xlab("Time (days)") + ylab("Concentration (mg/L)") +
+  scale_color_viridis_d(name = "Dose NIT (mg/kg)", aesthetics = c("colour"))
+
+plot_liverc_DICr = ggplot() + theme_bw() +
+  geom_line(data = cliver_DIC_rat %>% filter(dose == 10), 
+            aes(x = time/24, y = value, colour = as.factor(dose))) +
+  geom_line(data = cliver_DIC_rat %>% filter(dose == 3), 
+            aes(x = time/24, y = value, colour = as.factor(dose))) +
+  geom_line(data = cliver_DIC_rat %>% filter(dose == 1), 
+            aes(x = time/24, y = value, colour = as.factor(dose))) +
+  xlab("Time (days)") + ylab("Concentration (mg/L)") +
+  scale_color_viridis_d(name = "Dose DIC (mg/kg)", aesthetics = c("colour"), breaks = c(1,3,10), direction = -1)
+
+plot_liverc_KETr = ggplot(data = cliver_KET_rat) + theme_bw() +
+  geom_line(aes(x = time/24, y = value, colour = as.factor(dose))) +
+  xlab("Time (days)") + ylab("Concentration (mg/L)") +
+  scale_color_viridis_d(name = "Dose KET (mg/kg)", aesthetics = c("colour"))
+
+plot_liverc_NITh = ggplot(data = cliver_NIT_male) + theme_bw() +
+  geom_line(aes(x = time/24, y = value, colour = as.factor(dose))) +
+  xlab("Time (days)") + ylab("Concentration (mg/L)") +
+  scale_color_viridis_d(name = "Dose NIT (mg)", aesthetics = c("colour"))
+
+plot_liverc_DICh = ggplot(data = filter(cliver_DIC_male)) + theme_bw() +
+  geom_line(aes(x = time/24, y = value, colour = as.factor(dose))) +
+  xlab("Time (days)") + ylab("Concentration (mg/L)") +
+  scale_color_viridis_d(name = "Dose DIC (mg)", aesthetics = c("colour"))
+
+plot_liverc_KETh = ggplot(data = cliver_KET_male) + theme_bw() +
+  geom_line(aes(x = time/24, y = value, colour = as.factor(dose))) +
+  xlab("Time (days)") + ylab("Concentration (mg/L)") +
+  scale_color_viridis_d(name = "Dose KET (mg)", aesthetics = c("colour"))
+
+
+print(plot_liverc_NITr)
+print(plot_liverc_DICr)
+print(plot_liverc_KETr)
+print(plot_liverc_NITh)
+print(plot_liverc_DICh)
+print(plot_liverc_KETh)
+
+if (SaveFigures == 1){
+  ggsave("Figure_liverc_30d_NITrat.svg", plot = plot_liverc_NITr, path = "Figures", 
+         width = 20.5, height = 5, units = "cm")
+  ggsave("Figure_liverc_30d_DICrat.svg", plot = plot_liverc_DICr, path = "Figures", 
+         width = 20.5, height = 5, units = "cm")
+  ggsave("Figure_liverc_30d_KETrat.svg", plot = plot_liverc_KETr, path = "Figures", 
+         width = 20.5, height = 5, units = "cm")
+  ggsave("Figure_liverc_30d_NIThuman.svg", plot = plot_liverc_NITh, path = "Figures", 
+         width = 20, height = 5, units = "cm")
+  ggsave("Figure_liverc_30d_DIChuman.svg", plot = plot_liverc_DICh, path = "Figures",
+         width = 20, height = 5, units = "cm")
+  ggsave("Figure_liverc_30d_KEThuman.svg", plot = plot_liverc_KETh, path = "Figures", 
+         width = 20, height = 5, units = "cm")
+}
+```
+
+# Rat adversity simulations
+```{r}
+Simulation_rat = data.frame()
+
+sensitivity = 1 # value we can vary to simulate more or less sensitive subjects
+beta = 1 # value we can decrease to simulate reduced proliferation in elderly
+
+for(l in 1:3){
+  cliver_NIT = filter(cliver_NIT_rat, dose == c(10,30,100)[l])
+  cliver_DIC = filter(cliver_DIC_rat, dose == c(1,3,10)[l])
+  cliver_KET = filter(cliver_KET_rat, dose == c(10,30,100)[l])
+
+  for (A in 1:2){ #varying effect of ATF4 on proliferation
+    alpha = c(0.25, 1)[A]
+    #NIT
+    Compound = approxfun(cliver_NIT$time, cliver_NIT$value)
+    parameters = stats::setNames(as.list(parms_NIT$est_value), parms_NIT$X)
+    Simulation_NIT_rat = data.frame(ode(y = inistate, times = tspan, func = model, parms = parameters)) %>%
+      pivot_longer(cols = 2:11, names_to = "variable", values_to = "value") %>%
+      mutate(treatment = "NIT",
+             dose = c(10,30,100)[l],
+             label = c("Reduced value for effect of ATF4 on proliferation", 
+                       "In vitro value for effect of ATF4 on proliferation")[A])
+    
+    #DIC
+    Compound = approxfun(cliver_DIC$time, cliver_DIC$value)
+    parameters = stats::setNames(as.list(parms_DIC$est_value), parms_DIC$X)
+    Simulation_DIC_rat = data.frame(ode(y = inistate, times = tspan, func = model, parms = parameters)) %>%
+      pivot_longer(cols = 2:11, names_to = "variable", values_to = "value")%>%
+      mutate(treatment = "DIC",
+             dose = c(1,3,10)[l],
+             label = c("Reduced value for effect of ATF4 on proliferation", 
+                       "In vitro value for effect of ATF4 on proliferation")[A])
+    
+    #KET
+    Compound = approxfun(cliver_KET$time, cliver_KET$value)
+    parameters = stats::setNames(as.list(parms_KET$est_value), parms_KET$X)
+    Simulation_KET_rat = data.frame(ode(y = inistate, times = tspan, func = model2, parms = parameters)) %>%
+      pivot_longer(cols = 2:11, names_to = "variable", values_to = "value") %>%
+      mutate(treatment = "KET",
+             dose = c(10,30,100)[l],
+             label = c("Reduced value for effect of ATF4 on proliferation", 
+                       "In vitro value for effect of ATF4 on proliferation")[A])
+    
+    Simulation_rat = rbind(Simulation_rat, Simulation_NIT_rat, Simulation_DIC_rat,
+                           Simulation_KET_rat)
+  }
+}
+```
+
+# Plot Rat adversity simulations
+```{r}
+for(tr in c("NIT", "DIC", "KET")){
+  plot_adversity = ggplot() + theme_bw() +
+    geom_line(data = filter(filter(Simulation_rat, treatment == tr),
+                            variable %in% c("cells", "apop")),#, "total_death")),
+              aes(x = time/24, y = value, colour = label,
+                  linetype = label), linewidth = 1) +
+    facet_grid(rows = vars(variable), cols = vars(dose), scales = "free",
+               labeller = ifelse(tr == "NIT", labeller(variable = var_names, dose = dose_names_rat_NIT),
+                                 ifelse(tr == "DIC", labeller(variable = var_names, dose = dose_names_rat_DIC),
+                                        labeller(variable = var_names, dose = dose_names_rat_KET)))) + 
+    expand_limits(y = 0.5) + scale_color_viridis_d(name = "", aesthetics = c("colour")) +
+    xlab("Time (days)") + ylab("relative cell count (-)") + #labs(title = tr) +
+    theme(legend.position = "bottom") + labs(linetype = "")
+  print(plot_adversity)
+  
+  plot_pathway = ggplot() + theme_bw() +
+    geom_line(data = filter(filter(Simulation_rat, treatment == tr),
+                            variable %in% c("ATF4", "CHOP", "NRF2", "SRXN1", "GSH")),
+              aes(x = time/24, y = value), colour = "#440154") +
+    facet_grid(cols = vars(variable), rows = vars(dose),
+               labeller = ifelse(tr == "NIT", labeller(dose = dose_names_rat_NIT),
+                                 ifelse(tr == "DIC", labeller(dose = dose_names_rat_DIC),
+                                        labeller(dose = dose_names_rat_KET)))) + 
+    expand_limits(y = 0) + expand_limits(y = 2) +
+    # scale_color_viridis_d(name = "Ki", aesthetics = c("colour")) +
+    xlab("Time (days)") + ylab("variable (au)") + #labs(title = tr) + 
+    theme(legend.position = "bottom")
+  print(plot_pathway)
+  
+  if(SaveFigures == 1){
+    ggsave(paste("Figure_adversity_rat_",tr, ".svg", sep = ""), plot = plot_adversity, 
+           path = "Figures", width = 18, height = 9.5, units = "cm")
+    ggsave(paste("Figure_pathway_rat_",tr, ".svg", sep = ""), plot = plot_pathway, 
+           path = "Figures", width = 20, height = 11, units = "cm")
+  }
+}
+
+```
+# Plot Rat adversity simulations combined
+```{r}
+combined_simulation_rat_highconc = Simulation_rat %>%
+  mutate(drug_dose = paste(dose, "mg/kg", treatment)) %>%
+  filter(drug_dose %in% c("10 mg/kg DIC", "100 mg/kg NIT", "100 mg/kg KET"))
+
+scales = data.frame(variable = c("apop", "cells"), time = c(0,0), value = c(0.3, 0.7), 
+                    treatment = "DIC", dose = 10, label = "Reduced value for effect of ATF4 on proliferation")
+
+plot_adversity_combined = ggplot() + theme_bw() +
+    geom_line(data = filter(combined_simulation_rat_highconc, 
+                            variable %in% c("cells", "apop")),#, "total_death")),
+              aes(x = time/24, y = value, colour = label, 
+                  linetype = label), linewidth = 1) +
+    geom_point(data = scales, aes(x = time, y = value, colour = label), alpha = 0) +
+    facet_grid(rows = vars(variable), cols = vars(drug_dose), scales = "free",
+               labeller = labeller(variable = var_names)) + 
+    scale_color_viridis_d(name = "", aesthetics = c("colour")) +
+    xlab("Time (days)") + ylab("relative cell count (-)") + #labs(title = tr) + 
+    theme(legend.position = "bottom") + labs(linetype = "")
+  print(plot_adversity_combined)
+
+  
+    if(SaveFigures == 1){
+    ggsave(paste("Figure_adversity_rat_combined.svg", sep = ""), plot = plot_adversity_combined, 
+           path = "Figures", width = 18, height = 9.5, units = "cm")
+  }
+```
+
+
+# Male adversity simulation
+```{r}
+alpha = 0.25 #decreased effect of ATF4 based on rat simulations
+
+range_sens = c(1/2, 1, 2) # value we can vary to simulate more or less sensitive subjects
+```
+
+
+```{r}
+Simulation_human_male = data.frame()
+
+beta = 1 # value we can decrease to simulate reduced proliferation in elderly
+for (sensitivity in range_sens){  
+
+  #NIT
+  Compound = approxfun(cliver_NIT_male$time, cliver_NIT_male$value)
+  parameters = stats::setNames(as.list(parms_NIT$est_value), parms_NIT$X)
+  Simulation_NIT_human_male = data.frame(ode(y = inistate, times = tspan, func = model, parms = parameters)) %>%
+    pivot_longer(cols = 2:11, names_to = "variable", values_to = "value") %>%
+    mutate(treatment = "NIT",
+           sens = sensitivity)
+  
+  #DIC
+  Compound = approxfun(cliver_DIC_male$time, cliver_DIC_male$value)
+  parameters = stats::setNames(as.list(parms_DIC$est_value), parms_DIC$X)
+  Simulation_DIC_human_male = data.frame(ode(y = inistate, times = tspan, func = model, parms = parameters)) %>%
+    pivot_longer(cols = 2:11, names_to = "variable", values_to = "value")%>%
+    mutate(treatment = "DIC",
+           sens = sensitivity)
+  
+  #KET
+  Compound = approxfun(cliver_KET_male$time, cliver_KET_male$value)
+  parameters = stats::setNames(as.list(parms_KET$est_value), parms_KET$X)
+  Simulation_KET_human_male = data.frame(ode(y = inistate, times = tspan, func = model2, parms = parameters)) %>%
+    pivot_longer(cols = 2:11, names_to = "variable", values_to = "value") %>%
+    mutate(treatment = "KET",
+           sens = sensitivity)
+  
+  Simulation_human_male = rbind(Simulation_human_male, Simulation_NIT_human_male, Simulation_DIC_human_male, Simulation_KET_human_male)
+}
+
+Simulation_human_male$population = "Male"
+
+```
+
+# Female adversity simulation
+```{r}
+Simulation_human_female = data.frame()
+
+beta = 1 # value we can decrease to simulate reduced proliferation in elderly
+for (sensitivity in range_sens){  
+
+  #NIT
+  Compound = approxfun(cliver_NIT_female$time, cliver_NIT_female$value)
+  parameters = stats::setNames(as.list(parms_NIT$est_value), parms_NIT$X)
+  Simulation_NIT_human = data.frame(ode(y = inistate, times = tspan, func = model, parms = parameters)) %>%
+    pivot_longer(cols = 2:11, names_to = "variable", values_to = "value") %>%
+    mutate(treatment = "NIT",
+           sens = sensitivity)
+  
+  #DIC
+  Compound = approxfun(cliver_DIC_female$time, cliver_DIC_female$value)
+  parameters = stats::setNames(as.list(parms_DIC$est_value), parms_DIC$X)
+  Simulation_DIC_human = data.frame(ode(y = inistate, times = tspan, func = model, parms = parameters)) %>%
+    pivot_longer(cols = 2:11, names_to = "variable", values_to = "value")%>%
+    mutate(treatment = "DIC",
+           sens = sensitivity)
+  
+  #KET
+  Compound = approxfun(cliver_KET_female$time, cliver_KET_female$value)
+  parameters = stats::setNames(as.list(parms_KET$est_value), parms_KET$X)
+  Simulation_KET_human = data.frame(ode(y = inistate, times = tspan, func = model2, parms = parameters)) %>%
+    pivot_longer(cols = 2:11, names_to = "variable", values_to = "value") %>%
+    mutate(treatment = "KET",
+           sens = sensitivity)
+  
+  Simulation_human_female = rbind(Simulation_human_female, Simulation_NIT_human, 
+                                Simulation_DIC_human, Simulation_KET_human)
+}
+
+Simulation_human_female$population = "Female"
+```
+
+# Elderly male adversity simulation
+```{r}
+Simulation_human_maleE = data.frame()
+
+beta = 0.5 # value we can decrease to simulate reduced proliferation in elderly
+for (sensitivity in range_sens){  
+
+  #NIT
+  Compound = approxfun(cliver_NIT_maleE$time, cliver_NIT_maleE$value)
+  parameters = stats::setNames(as.list(parms_NIT$est_value), parms_NIT$X)
+  Simulation_NIT_human = data.frame(ode(y = inistate, times = tspan, func = model, parms = parameters)) %>%
+    pivot_longer(cols = 2:11, names_to = "variable", values_to = "value") %>%
+    mutate(treatment = "NIT",
+           sens = sensitivity)
+
+  #DIC
+  Compound = approxfun(cliver_DIC_maleE$time, cliver_DIC_maleE$value)
+  parameters = stats::setNames(as.list(parms_DIC$est_value), parms_DIC$X)
+  Simulation_DIC_human = data.frame(ode(y = inistate, times = tspan, func = model, parms = parameters)) %>%
+    pivot_longer(cols = 2:11, names_to = "variable", values_to = "value")%>%
+    mutate(treatment = "DIC",
+           sens = sensitivity)
+
+  #KET
+  Compound = approxfun(cliver_KET_maleE$time, cliver_KET_maleE$value)
+  parameters = stats::setNames(as.list(parms_KET$est_value), parms_KET$X)
+  Simulation_KET_human = data.frame(ode(y = inistate, times = tspan, func = model2, parms = parameters)) %>%
+    pivot_longer(cols = 2:11, names_to = "variable", values_to = "value") %>%
+    mutate(treatment = "KET",
+           sens = sensitivity)
+
+  Simulation_human_maleE = rbind(Simulation_human_maleE, Simulation_NIT_human,
+                                 Simulation_DIC_human, Simulation_KET_human)
+}
+
+Simulation_human_maleE$population = "Elderly male"
+
+```
+
+# Elderly female adversity simulation
+```{r}
+Simulation_human_femaleE = data.frame()
+
+beta = 0.5 # value we can decrease to simulate reduced proliferation in elderly
+for (sensitivity in range_sens){  
+  
+  #NIT
+  Compound = approxfun(cliver_NIT_femaleE$time, cliver_NIT_femaleE$value)
+  parameters = stats::setNames(as.list(parms_NIT$est_value), parms_NIT$X)
+  Simulation_NIT_human = data.frame(ode(y = inistate, times = tspan, func = model, parms = parameters)) %>%
+    pivot_longer(cols = 2:11, names_to = "variable", values_to = "value") %>%
+    mutate(treatment = "NIT",
+           sens = sensitivity)
+
+  #DIC
+  Compound = approxfun(cliver_DIC_femaleE$time, cliver_DIC_femaleE$value)
+  parameters = stats::setNames(as.list(parms_DIC$est_value), parms_DIC$X)
+  Simulation_DIC_human = data.frame(ode(y = inistate, times = tspan, func = model, parms = parameters)) %>%
+    pivot_longer(cols = 2:11, names_to = "variable", values_to = "value")%>%
+    mutate(treatment = "DIC",
+           sens = sensitivity)
+
+  #KET
+  Compound = approxfun(cliver_KET_femaleE$time, cliver_KET_femaleE$value)
+  parameters = stats::setNames(as.list(parms_KET$est_value), parms_KET$X)
+  Simulation_KET_human = data.frame(ode(y = inistate, times = tspan, func = model2, parms = parameters)) %>%
+    pivot_longer(cols = 2:11, names_to = "variable", values_to = "value") %>%
+    mutate(treatment = "KET",
+           sens = sensitivity)
+
+  Simulation_human_femaleE = rbind(Simulation_human_femaleE, Simulation_NIT_human,
+                                   Simulation_DIC_human, Simulation_KET_human)
+}
+
+Simulation_human_femaleE$population = "Elderly female"
+
+```
+
+
+# Plot human adversity simulation for different groups
+```{r}
+Simulation_human = rbind(Simulation_human_male, Simulation_human_female, Simulation_human_maleE, Simulation_human_femaleE)
+
+scales = data.frame(variable = c("apop", "cells"), time = c(0,0), value = c(0.3, 0.7), 
+                    treatment = "DIC", population = "Male")
+
+plot_adversity_risk = ggplot() + theme_bw() +
+  geom_line(data = filter(Simulation_human, variable %in% c("cells", "apop") & sens == 1),
+            aes(x = time/24, y = value, colour = population), linewidth = 1) +
+  geom_point(data = scales, aes(x = time, y = value, colour = population), alpha = 0) +
+  facet_grid(rows = vars(variable), cols = vars(treatment), scales = "free",
+             labeller = labeller(variable = var_names, treatment = human_treatment)) + 
+  # expand_limits(y = 0.5) +
+  scale_color_viridis_d(name = "", aesthetics = c("colour")) +
+  xlab("Time (days)") + ylab("Relative cell count (-)") + theme(legend.position = "bottom")
+print(plot_adversity_risk)
+
+  if(SaveFigures == 1){
+    ggsave("Figure_adversity_human_risk.svg", plot = plot_adversity_risk, 
+           path = "Figures", width = 18, height = 9.5, units = "cm")
+  }
+```
+
+# Plot human adversity for different sensitivities
+```{r}
+Simulation_human_wide =  Simulation_human %>%
+  mutate(sens = ifelse(sens<1, "low", ifelse(sens>1, "high", sens))) %>%
+  pivot_wider(names_from = sens, values_from = value)
+
+
+plot_adversity_sens = ggplot() + theme_bw() +
+  geom_ribbon(data = filter(Simulation_human_wide, variable %in% c("apop")),
+            aes(x = time/24, ymin = low, ymax = high,  fill = population), alpha = 0.2) +
+  geom_line(data = filter(Simulation_human, variable %in% c("apop") & sens == 1),
+            aes(x = time/24, y = value, colour = population), linewidth = 1) +
+  facet_wrap(~treatment, scales = "free",
+             labeller = labeller(variable = var_names, treatment = human_treatment)) + 
+  scale_color_viridis_d(name = "", aesthetics = c("colour", "fill")) +
+  xlab("Time (days)") + ylab("Relative apoptotic cell count (-)") + theme(legend.position = "bottom")
+print(plot_adversity_sens)
+
+  if(SaveFigures == 1){
+    ggsave("Figure_adversity_human_sens.svg", plot = plot_adversity_sens, 
+           path = "Figures", width = 18, height = 7.5, units = "cm")
+  }
+
+```
+# Plot stress pathway activation for males
+```{r}
+stress_male = Simulation_human %>%
+  filter(sens == 1)
+
+plot_pathway_male  = ggplot() + theme_bw() +
+  geom_line(data = filter(stress_male, variable %in% c("ATF4", "CHOP", "NRF2", "SRXN1", "GSH")),
+              aes(x = time/24, y = value, colour = population)) +
+  facet_grid(rows = vars(variable), cols = vars(treatment), scales = "free",
+             labeller = labeller(treatment = human_treatment)) + 
+     expand_limits(y = 0.3) + expand_limits(y = 0.67) +
+    scale_color_viridis_d(name = "", aesthetics = c("colour")) +
+  xlab("Time (days)") + ylab("variable (au)") + #labs(title = tr) + 
+  theme(legend.position = "bottom")
+print(plot_pathway_male)
+
+
+if(SaveFigures == 1){
+  ggsave("FigS_pathways_human_pop.pdf", plot = plot_pathway_male, 
+         path = "Figures", width = 16, height = 18, units = "cm")
+}
+
+
+```
+
+
+## Severe GFR
+```{r}
+# cliver_NIT_femaleGFR = read.csv(file = "..//ModelPBPK//simu_cliver//NIT_50_mg_30_days_Human_female_severeGFR.csv", header=TRUE)
+# cliver_NIT_maleGFR = read.csv(file = "..//ModelPBPK//simu_cliver//NIT_50_mg_30_days_Human_male_severeGFR.csv", header=TRUE)
+# 
+# beta = 0.5 # value we can decrease to simulate reduced proliferation in elderly
+# alpha = 0.25 #decreased effect of ATF4 based on rat simulations
+# sensitivity = 1
+# 
+# 
+# plot_liverc_NITGFRf = ggplot(data = cliver_NIT_femaleGFR) + theme_bw() +
+#   geom_line(aes(x = time/24, y = value, colour = as.factor(dose))) +
+#   xlab("Time (days)") + ylab("Concentration (mg/L)") +
+#   scale_color_viridis_d(name = "Dose (mg)", aesthetics = c("colour"))
+# print(plot_liverc_NITGFRf)
+# 
+# plot_liverc_NITGFRm = ggplot(data = cliver_NIT_maleGFR) + theme_bw() +
+#   geom_line(aes(x = time/24, y = value, colour = as.factor(dose))) +
+#   xlab("Time (days)") + ylab("Concentration (mg/L)") +
+#   scale_color_viridis_d(name = "Dose (mg)", aesthetics = c("colour"))
+# print(plot_liverc_NITGFRm)
+# 
+# 
+# Compound = approxfun(cliver_NIT_femaleGFR$time, cliver_NIT_femaleGFR$value)
+# parameters = stats::setNames(as.list(parms_NIT$est_value), parms_NIT$X)
+# Simulation_NIT_GFRf = data.frame(ode(y = inistate, times = tspan, func = model, parms = parameters)) %>%
+#   pivot_longer(cols = 2:11, names_to = "variable", values_to = "value") %>%
+#   mutate(treatment = "NIT",
+#          sens = sensitivity)
+# 
+# Compound = approxfun(cliver_NIT_maleGFR$time, cliver_NIT_maleGFR$value)
+# parameters = stats::setNames(as.list(parms_NIT$est_value), parms_NIT$X)
+# Simulation_NIT_GFRm = data.frame(ode(y = inistate, times = tspan, func = model, parms = parameters)) %>%
+#   pivot_longer(cols = 2:11, names_to = "variable", values_to = "value") %>%
+#   mutate(treatment = "NIT",
+#          sens = sensitivity)
+# 
+# plot_adversity_NITGFR = ggplot() + theme_bw() +
+#   geom_line(data = filter(Simulation_NIT_GFRm, variable %in% c("cells", "apop")),
+#             aes(x = time/24, y = value, colour = "Elderly male with severe GFR"), linewidth = 1) +
+#   geom_line(data = filter(Simulation_NIT_GFRf, variable %in% c("cells", "apop")),
+#             aes(x = time/24, y = value, colour = "Elderly female with severe GFR"), linewidth = 1) +
+#   facet_grid(rows = vars(variable), cols = vars(treatment), scales = "free",
+#              labeller = labeller(variable = var_names, treatment = human_treatment)) + 
+#   # expand_limits(y = 0.5) +
+#   scale_color_viridis_d(name = "", aesthetics = c("colour")) +
+#   xlab("Time (days)") + ylab("Relative cell count (-)") + theme(legend.position = "bottom")
+# print(plot_adversity_NITGFR)
+
+```
+
