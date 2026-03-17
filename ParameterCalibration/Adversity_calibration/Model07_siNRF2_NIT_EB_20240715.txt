@@ -1,0 +1,357 @@
+# This file contains a the input for the ParameterOptimization.py fitting script. 
+# This file contains a system of ODEs, the steady states constraints, the information on the observables, 
+# the parameters and user settings for the fitting script. 
+#
+# The three sections for settings, parameters and ODEs are separated by "####START_XXX####" and "####END_XXX####". 
+# These separations are read by the fitting script and should therefore not be deleted!
+#
+# The format is as follows:
+#
+# Section 1: User settings. 
+# This section contains information on the parameter fitting settings, such as number of parameter sets and cores to use, 
+# but also the names of the columns that are used to read in the data.
+#
+# Section 2: Parameters.
+# 
+# Section 3: ODEs and observable functions.
+#
+#### Example file for equations:
+####
+#### # ODE equations
+#### f0 = s + kmin * V - kplus * U - du * U
+#### f1 = kplus * U - kmin * V - dv * V
+####
+#### # Steady state constraints
+#### fR1 = ((s + (kmin * Vo)) / Uo ) - kplus # solved for du
+#### fR2 = ((kplus * Uo) / Vo) - kmin # solved for dv
+####
+#### # Equations for the observables
+#### g0 = sp_U * U + op_U
+#### g1 = sp_V * V + op_V
+
+####START_USER_SETTINGS####
+
+# Write some information for the README file, for example a description of the model.
+# Example: < OPTIONAL_TEXT = "This is a test run for model M1." >
+#
+OPTIONAL_TEXT = " "
+
+# Set the number of initial parameter sets.
+# Example: < NiniP = 20 >
+#
+NiniP = 50
+
+# Set the number of CPU's to use simultaneously.
+# Example: < Ncpu = 20 >
+#
+Ncpu = 20
+
+# Maximum calculation time (in seconds) before breaking off the estimation.
+# Recommended to limit it to 24 of 48 hours.
+# Example: < timeMax = 24 * 60 * 60 >
+#
+timeMax = 24 * 60 * 60
+
+# Number of time points that should be simulated and are also included in the data
+# Example: < nrOfTps = 72 >
+#
+nrOfTps = 20
+
+TimeSpan = np.linspace(1,20,20)
+
+# Name of the column in the data set that contains the experimental data as string.
+# Example: < realDataColName = "expression" >
+#
+realDataColName = "data4modelReal"
+
+# Name of the column in the data set that contains the real time points belonging to the experimental data as string. 
+# Example: < realTimeColName = "time" >
+#
+realTimeColName = "TimePoint" 
+
+# Name of the column that contains the interpolated data as string. If the data set contains only the experimental data, this
+# should be the same column name as the realDataColName.
+# Example: < interpolDataColName = "expression" >
+#
+interpolDataColName = "data4modelReal"
+
+# Name of the column in the data set that contains the time points belonging to the interpolated data as string. 
+# If the data set contains only the experimental data, this
+# should be the same column name as the realTimeColName.
+# Example: < interpolTimeColName = "time" >
+#
+interpolTimeColName = "TimePoint"
+
+# Name of the column in the data set that contains the information on the names of the state variables as string.
+# Example: < stateVarName = "variable" >
+#
+stateVarName = "StateVar"
+
+# Name of the column in the data set that contains the information on the concentration as string.
+# Should remain empty, i.e. doseColName = None, if there is no dose, but cannot be omitted entirely.
+# Example: < doseColName = "concentration" >
+#
+doseColName = "concentration"
+
+# Name of the column that contains the information on the names of the replicate or plate IDs as string.
+# Should remain empty, i.e. plateIDName = None, if there is are no replicates, but cannot be omitted entirely.
+# Example: < plateIDName = "replicate" >
+#
+plateIDName = "replicate"
+
+# Additional and manually specified data information to select only certain
+# doses, state variables or replicates.
+# Give the names of the replicates/plateIDs per state variable in the data. The replicates/plateIDs of every 
+# state variable are contained in a list and all these lists are elements of a bigger list.
+# If no replicates, use [] or None. The plateIDName should then also be empty.
+# If not defined, then these lists are determined from the data automatically.
+# Example: < plateID_list = [[1, 2, 3], [1, 2, 3],[1, 2, 3]] >
+#
+plateID_list = [["R1", "R2", "R3", "R4"], ["R1", "R2", "R3", "R4"], ["R1", "R2", "R3", "R4"]]
+
+# List of doses that need to be fitted to and as denoted in the concentration column in the dataset.
+# This should be a numerical list!
+# If no doses, use [] or None. The doseColName should then also be empty.
+# If not defined, then these lists are determined from the data automatically.
+# Example: < doseList = [0,10,100] >
+#
+doseList = [0.2, 7.5, 30.0, 60.0, 120.0]
+
+# Type of dose function (choose from: stepwise, expDecay) if the stress input is an explicit, numerical function
+# So far, only the expDecay option is tested.
+# Example: < doseFunctionType = "expDecay" >
+#
+doseFunctionType = "expDecay"
+
+# SD handling: if the sd is 0 for one or multiple timepoints, how should this be treated?
+# In case there is no data at a timepoint, the sd is NaN and the values in the Jacobian and cost funtion become zero.
+# The SD can become zero for multiple reasons:
+# Only one replicate exists for one/few timepoints of that variable
+# Only one replicate exists for all timepoints of that variable
+# Replicates are equal (very unlikely)
+# Replicates are equal due to normalisation
+# Something else...
+# Cosequently, this determines the way you want to handle the SD, for example: 
+# Very small SD ("Small_Sd")
+# Very large SD ("Large_Sd")
+# SD nan ("Nan_Sd")
+# SD equal to average SD for that variable ("Average_Sd")
+# SD equal to other chosen value ("Input_Sd", sdvalue must be equal to chosen value)
+# Something else...
+
+sdzero = "Average_Sd"
+
+sdsmall = 1E-10
+sdlarge = 1E10
+sdvalue = 1
+
+####END_USER_SETTINGS####
+
+####START_PARAMETERS####
+
+# Fixed/known parameters or initial states (optional)
+# Example: < A_init = 0.1 
+#            conc1 = 0 >
+#
+
+# Parameters from 20240417_154101_EB_NITModel_parameterEstimates_parmset8_cost_10.60.csv
+Compound_ss = 0
+tau1 = 0.006373009
+degrade = 1.326255423
+
+EC0 = 0
+EC1 = 0.078366266
+EC2 = 0.462434944
+EC3 = 0.6006757
+EC4 = 0.877157096
+
+# initial conditions
+stress_ss = 0
+modified_K1_ss = 0
+KEAP1_ss = 1
+GSH_ss = 1
+
+# Data steady states -> tmp 0 of interpolated data DMSO
+ATF4_ss = 0.30702814
+CHOP_ss = 0.378908704
+NRF2_ss = 0.557889857
+SRXN1_ss = 0.467017171
+
+# parameters NIT, model 10, 20240613_090905_EB_NITModel_parameterEstimates_parmset8_cost_374.36
+buildA4Base = 8.387897e-03
+V_A4S = 1.353106e-01
+Vmax_C = 3.290581e-01
+nC = 2.071803e+00
+K_C = 7.875258e-01
+k_K1_mod = 1.000000e+03
+k_K1_unmod = 2.048402e+01
+buildN2Base = 1.602872e-01
+V_degN2 = 1.444441e-01
+buildS1Base = 5.227743e+02
+Vmax_S1 = 9.999977e+02
+nS1 = 6.826606e+00
+K_S1 = 9.972191e-01
+V_N2A4 = 1.000000e-01
+
+# parameters from nitrofurnatoin GSH model 06: 20240621_170031_EB_NITModel_parameterEstimates_parmset27_cost_5.58
+buildGBase = 1.670308e-01
+Vmax_G = 1.179624e+00
+nG = 5.789006e+00
+K_G = 1.229426e+00
+degGA4 = 3.173107e+00
+
+# Name of stress as it occurs in the ODE functions; either stressName = ['your stress input name'], i.e. your stress name as list, 
+# or set as empty list, i.e. stressName = [], if there is no model perturbation.
+# Example: < stressName = ["S"] >
+#
+stressName = ['S'] 
+
+# Names of the state variables in the order of the ODEs (as defined below). 
+# If one of the state variable is the stress input, then use the same name for the state variable as the stress in <stressName> 
+# and define the names for the stress level(s) in <doseNames>.
+# Example: < stateList = ['A','B','C']  >
+#
+stateList = ['Compound', 'ATF4', 'CHOP', 'KEAP1', 'modified_K1', 'NRF2', 'SRXN1', 'GSH', 'cells', 'apop'] 
+
+# Names of the free initial/steady state parameters, in the order of the ODE equations that they belong to (as defined below). 
+# Example: < stateOList = ['B_init','C_init'] >
+#
+stateOList = ['cells_init', 'apop_init'] 
+
+# Initial states of known state variables, in the order of the ODE equations that they belong to (as defined below). 
+# Example: < stateOKnownList = [A_init] >
+#
+stateOKnownList = [Compound_ss, ATF4_ss, CHOP_ss, KEAP1_ss, modified_K1_ss, NRF2_ss, SRXN1_ss, GSH_ss]
+
+# Names of the initial states of known state variables, in the order of <stateOKnownList>. 
+# Example: < stateOKnownNameList = ['A_init'] >
+#
+stateOKnownNameList = ['Compound_ss', 'ATF4_ss', 'CHOP_ss', 'KEAP1_ss', 'modified_K1_ss', 'NRF2_ss', 'SRXN1_ss', 'GSH_ss']
+
+# All initial states in the same order as <stateList>. 
+# Example: < allIniStatesList = ['A_init','B_init','C_init'] >
+#
+allIniStatesList = ['Compound_ss', 'ATF4_ss', 'CHOP_ss', 'KEAP1_ss', 'modified_K1_ss', 'NRF2_ss', 'SRXN1_ss', 'GSH_ss', 'cells_init', 'apop_init']
+
+# Name of the functions containing the observables. This should correspond to the function names as
+# defined in the section with the ODEs below. Use a "g" and then an index number starting at 0.
+# Example: < obsList = ["g0","g1","g2"] >
+#
+obsList = ['g0', 'g1', 'g2']
+
+# Names of the observed state variables, as denoted in the data set in column <stateVarName>.
+# Example: < obsStateVarList = ['A','B','C'] >
+#
+obsStateVarList = ['Total_cells', 'Live_cells', 'Apop_cells']
+
+# Star parameters, i.e. the parameters that can be described as functions of snow parameters 
+# (the union set of the initial or steady states and the free parameters). 
+# For every star parameter, there should be a constraint function fR1, ..., fRn defined in the ODE section below.
+# The list should be in the same order as the steady state constraint functions fR1, ..., fRn. These functions are defined
+# at the bottom of this file in the ODE section.
+# Important - Parameter names should not include names of the state variables (case sensitive)!
+# Example: < paraStarList = ["ksa", "ksb", "kdc"] > for which ksa should then be defined by fR1, ksb by fR2, and kdc by f3R.
+#
+paraStarList = ['degradA4', 'degradC', 'degradN2', 'degradS1', 'degradG'] 
+
+# Scaling and offset parameters
+# Example: < paraSO = ["sf_a","o_a"] >
+#
+paraSO = [] 
+
+# Snow parameters, i.e. the free parameters except for the initial or steady state variables. The order doesn't matter here.
+# Important - Parameter names should not include names of the state variables (case sensitive)!
+# Example: < paraSnowList = ["kda", "kdb", "ksc"] >
+#
+paraSnowList = ["growth_rate", "death_byC_rate", "float_rate"] + paraSO
+
+# Dose parameters that need to be estimated
+# Example: < doseParmsList = ["conc2", "conc3"] >
+#
+doseParmsList = []
+
+# Names of all dose parameters
+# Example: < doseNames = ["conc1", "conc2", "conc3"] >
+#
+doseNames = ['EC0', 'EC1', 'EC2', 'EC3', 'EC4']
+
+# Pharmacokinetic parameters. If the stress input is a numerical function with <doseFunctionType = "expDecay">, this should be "tau1"
+# Example: < PKparms = ["tau1"] >
+#
+PKparms = []
+
+# Optional: upper and lower bounds in the order of:
+# state variables for estimation (Nse), 
+# dose parameters (Nd), 
+# pharmacokinetic parameters (Npk) and 
+# snow parameters for estimation (Nsnow)
+# For each parameter, you can indicate the lower bound (lbound) or upper bound (ubound).
+# Indicate the index position (for Python, i.e. start counting at 0) of the parameter 
+# and the corresponding bound on log scale as list: [index,np.log(bound)]. 
+# If not applicable, this can be omitted completely.
+# Example: < lbounds = [[4,-np.inf]]
+#            ubounds = [[4,np.log(1)]] >
+#
+# Bounds for ER_init, EC2 and EC3
+# lbounds = [[3,np.log(0)]]
+# ubounds = [[3,np.log(3)]]
+
+# Optional: priors, i.e. starting position for a parameter before calibration in the order of:
+# state variables for estimation (Nse), 
+# dose parameters (Nd), 
+# pharmacokinetic parameters (Npk) and 
+# snow parameters for estimation (Nsnow)
+# Indicate the index position (for Python, i.e. start counting at 0) of the parameter 
+# and the corresponding prior on linear scale as list: [index,prior]. 
+# MUST be specified for parameters for which lower and upper bounds are specified above
+# and where the interval [lbound, ubound] does not fully contain the [0,1] interval.
+# If not applicable, this can be omitted completely.
+# Example: < priors = [[0,1],[4,0]] >
+# priors = [[3,1.5]]
+
+####END_PARAMETERS####
+
+####START_ODES####
+
+# Set of ODE equations. 
+# Every ODE should be numbered with "f" and an index number starting at 0.
+# Example: < f0 = ksa - kda * A
+#            f1 = ksb - kdb * B
+#            f2 = ksc * A * B - kdc * C >
+#
+f0 = S - degrade * (Compound)
+f1 = buildA4Base + V_A4S * Compound - degradA4 * ATF4
+f2 = Vmax_C * ((ATF4**nC)/(K_C**nC + ATF4**nC)) - degradC * CHOP
+f3 = - (k_K1_mod*Compound*KEAP1) + (k_K1_unmod*modified_K1)
+f4 = (k_K1_mod*Compound*KEAP1) - (k_K1_unmod*modified_K1)
+f5 = buildN2Base + V_N2A4*ATF4 - V_degN2*(KEAP1*NRF2) - degradN2* NRF2
+f6 = buildS1Base + Vmax_S1 * ((NRF2**nS1)/(K_S1**nS1 + NRF2**nS1)) - degradS1 * SRXN1
+f7 = buildGBase + Vmax_G * ((NRF2**nG)/(K_G**nG + NRF2**nG)) - degradG * (degGA4 * ATF4 + 1) * GSH
+f9 = growth_rate * cells - death_byC_rate * (CHOP) *cells
+f10 = death_byC_rate * (CHOP) * cells - float_rate * apop
+
+
+# Steady state constraints
+# Every constraint should be numbered with "fR" and an index number starting at 1.
+# Example: < fR1 = kda * A
+#            fR2 = kdb * B 
+#            fR3 = ksc * A_init * B_init / C_init >
+#
+fR1 = (buildA4Base)/ATF4_ss
+fR2 = (Vmax_C * ((ATF4_ss**nC)/(K_C**nC + ATF4_ss**nC)))/CHOP_ss
+fR3 = (buildN2Base + V_N2A4*ATF4_ss - V_degN2 * (KEAP1_ss*NRF2_ss))/NRF2_ss
+fR4 = (buildS1Base + Vmax_S1 * ((NRF2_ss**nS1)/(K_S1**nS1 + NRF2_ss**nS1)))/SRXN1_ss
+fR5 = (buildGBase + Vmax_G * ((NRF2_ss**nG)/(K_G**nG + NRF2_ss**nG)))/((degGA4 * ATF4_ss + 1) * GSH_ss)
+
+
+# Equations for the observables, that can contain the scaling and offset functions
+# Every equation should be numbered with "g" and an index number starting at 0.
+# Example: < g0 = sf_a * A + o_a 
+#            g1 = B
+#            g2 = C >
+#
+g0 = cells + apop
+g1 = cells 
+g2 = apop
+
+####END_ODES####

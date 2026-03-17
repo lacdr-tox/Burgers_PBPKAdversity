@@ -1,0 +1,383 @@
+# This file contains a the input for the ParameterOptimization.py fitting script. 
+# This file contains a system of ODEs, the steady states constraints, the information on the observables, 
+# the parameters and user settings for the fitting script. 
+#
+# The three sections for settings, parameters and ODEs are separated by "####START_XXX####" and "####END_XXX####". 
+# These separations are read by the fitting script and should therefore not be deleted!
+#
+# The format is as follows:
+#
+# Section 1: User settings. 
+# This section contains information on the parameter fitting settings, such as number of parameter sets and cores to use, 
+# but also the names of the columns that are used to read in the data.
+#
+# Section 2: Parameters.
+# 
+# Section 3: ODEs and observable functions.
+#
+#### Example file for equations:
+####
+#### # ODE equations
+#### f0 = s + kmin * V - kplus * U - du * U
+#### f1 = kplus * U - kmin * V - dv * V
+####
+#### # Steady state constraints
+#### fR1 = ((s + (kmin * Vo)) / Uo ) - kplus # solved for du
+#### fR2 = ((kplus * Uo) / Vo) - kmin # solved for dv
+####
+#### # Equations for the observables
+#### g0 = sp_U * U + op_U
+#### g1 = sp_V * V + op_V
+
+####START_USER_SETTINGS####
+
+# Write some information for the README file, for example a description of the model.
+# Example: < OPTIONAL_TEXT = "This is a test run for model M1." >
+#
+OPTIONAL_TEXT = " "
+
+# Set the number of initial parameter sets.
+# Example: < NiniP = 20 >
+#
+NiniP = 50
+
+# Set the number of CPU's to use simultaneously.
+# Example: < Ncpu = 20 >
+#
+Ncpu = 10
+
+# Maximum calculation time (in seconds) before breaking off the estimation.
+# Recommended to limit it to 24 of 48 hours.
+# Example: < timeMax = 24 * 60 * 60 >
+#
+timeMax = 24 * 60 * 60
+
+# Number of time points that should be simulated and are also included in the data
+# Example: < nrOfTps = 72 >
+#
+nrOfTps = 10
+
+TimeSpan = [0, 0.08, 0.25, 0.5, 1, 2, 4, 6, 8, 12]
+
+# Name of the column in the data set that contains the experimental data as string.
+# Example: < realDataColName = "expression" >
+#
+realDataColName = "data4modelReal"
+
+# Name of the column in the data set that contains the real time points belonging to the experimental data as string. 
+# Example: < realTimeColName = "time" >
+#
+realTimeColName = "timepoint" 
+
+# Name of the column that contains the interpolated data as string. If the data set contains only the experimental data, this
+# should be the same column name as the realDataColName.
+# Example: < interpolDataColName = "expression" >
+#
+interpolDataColName = "data4modelReal"
+
+# Name of the column in the data set that contains the time points belonging to the interpolated data as string. 
+# If the data set contains only the experimental data, this
+# should be the same column name as the realTimeColName.
+# Example: < interpolTimeColName = "time" >
+#
+interpolTimeColName = "timepoint"
+
+# Name of the column in the data set that contains the information on the names of the state variables as string.
+# Example: < stateVarName = "variable" >
+#
+stateVarName = "StateVar"
+
+# Name of the column in the data set that contains the information on the concentration as string.
+# Should remain empty, i.e. doseColName = None, if there is no dose, but cannot be omitted entirely.
+# Example: < doseColName = "concentration" >
+#
+doseColName = "dose_mg"
+
+# Name of the column that contains the information on the names of the replicate or plate IDs as string.
+# Should remain empty, i.e. plateIDName = None, if there is are no replicates, but cannot be omitted entirely.
+# Example: < plateIDName = "replicate" >
+#
+plateIDName = "replID"
+
+# Additional and manually specified data information to select only certain
+# doses, state variables or replicates.
+# Give the names of the replicates/plateIDs per state variable in the data. The replicates/plateIDs of every 
+# state variable are contained in a list and all these lists are elements of a bigger list.
+# If no replicates, use [] or None. The plateIDName should then also be empty.
+# If not defined, then these lists are determined from the data automatically.
+# Example: < plateID_list = [[1, 2, 3], [1, 2, 3],[1, 2, 3]] >
+#
+plateID_list = [[1]]  
+
+# List of doses that need to be fitted to and as denoted in the concentration column in the dataset.
+# This should be a numerical list!
+# If no doses, use [] or None. The doseColName should then also be empty.
+# If not defined, then these lists are determined from the data automatically.
+# Example: < doseList = [0,10,100] >
+#
+doseList = [10]
+
+# Type of dose function (choose from: stepwise, expDecay) if the stress input is an explicit, numerical function
+# So far, only the expDecay option is tested.
+# Option "anaus" is added for PBPK simulations. Used for simulating an oral uptake, tau1 defined as period. Equation is:
+# dose * (tanh(100*(t-t0)) - tanh(100*(t-t1)))/2
+# dose should be defined as actual total intake/tau1 to represent the upake rate
+# Example: < doseFunctionType = "expDecay" >
+#
+doseFunctionType = "anaus"
+
+# SD handling: if the sd is 0 for one or multiple timepoints, how should this be treated?
+# In case there is no data at a timepoint, the sd is NaN and the values in the Jacobian and cost funtion become zero.
+# The SD can become zero for multiple reasons:
+# Only one replicate exists for one/few timepoints of that variable
+# Only one replicate exists for all timepoints of that variable
+# Replicates are equal (very unlikely)
+# Replicates are equal due to normalisation
+# Something else...
+# Cosequently, this determines the way you want to handle the SD, for example: 
+# Very small SD ("Small_Sd")
+# Very large SD ("Large_Sd")
+# SD nan ("Nan_Sd")
+# SD equal to average SD for that variable ("Average_Sd")
+# SD equal to other chosen value ("Input_Sd", sdvalue must be equal to chosen value)
+# Something else...
+
+sdzero = "Input_Sd"
+
+sdsmall = 1E-10
+sdlarge = 1E10
+sdvalue = 1
+
+####END_USER_SETTINGS####
+
+####START_PARAMETERS####
+
+# Fixed/known parameters or initial states (optional)
+# Example: < A_init = 0.1 
+#            conc1 = 0 >
+#
+
+### Physiological parameters
+BW  = 0.250
+
+QCC = 17.76  
+FQliver = 0.174
+FQkidney = 0.141
+FQfat =  0.07
+FQgut = 0.1
+Qfilterate= 0.0786
+
+Fliver = 0.0366
+Fkidney = 0.0073
+Ffilterate=0.00073
+Ffat = 0.0721
+Fgut = 0.027
+Fplasma = 0.0321
+
+QCblood = QCC*BW
+QCplasma =QCblood
+Qliver= FQliver* QCplasma								  	
+Qgut= FQgut* QCplasma
+Qkidney= FQkidney*QCplasma
+Qfat = FQfat*QCplasma
+Qrestbody = QCplasma - (Qliver + Qkidney + Qfat + Qgut)
+vgut = Fgut*BW
+vliver = Fliver*BW 
+vkidney = Fkidney*BW
+vfilterate =Ffilterate*BW
+vfat = Ffat*BW
+vplasma = Fplasma*BW
+vrestbody = 0.84*BW - vliver- vkidney- vfat- vplasma -vgut -vfilterate
+
+### Biochemical parameters
+Kgut_plasma = 0.622
+Kliver_plasma = 0.651  
+Kkidney_plasma = 0.671	
+Kfat_plasma = 0.159
+Krestbody_plasma = 0.423 
+fu = 0.42
+kbp = 0.76
+
+#fugut = fu
+kgutabs = 2.11*BW
+
+Qurine = 20.3613*BW
+kfeces = 0.0187
+#VmaxM = 835.7913*vliver
+#KmM = 5.83
+
+Vehr = 0.52*BW
+Kehr = 0.017
+kbile = 0.256*BW
+
+Tr = 2.365112*BW
+Tm = 14.2618*BW
+Kt = 0.059
+
+### Initial states
+Agutlumen_i = 0
+Agut_i = 0
+Aliver_i = 0
+Abile_i = 0
+Akidney_i = 0
+Afilterate_i = 0
+Adelay_i = 0
+Afat_i = 0
+Arestbody_i = 0
+Aurine_i = 0
+Aplasma_i = 0
+
+tau1 = 3/60
+EC1 = 10*BW/tau1
+
+
+# Name of stress as it occurs in the ODE functions; either stressName = ['your stress input name'], i.e. your stress name as list, 
+# or set as empty list, i.e. stressName = [], if there is no model perturbation.
+# Example: < stressName = ["S"] >
+#
+stressName = ['S'] 
+
+# Names of the state variables in the order of the ODEs (as defined below). 
+# If one of the state variable is the stress input, then use the same name for the state variable as the stress in <stressName> 
+# and define the names for the stress level(s) in <doseNames>.
+# Example: < stateList = ['A','B','C']  >
+#
+stateList = ["Agutlumen", "Agut", "Aliver", "Abile", "Akidney", "Afilterate", "Adelay", "Afat", "Arestbody", "Aurine", "Aplasma"] 
+
+# Names of the free initial/steady state parameters, in the order of the ODE equations that they belong to (as defined below). 
+# Example: < stateOList = ['B_init','C_init'] >
+#
+stateOList = [] 
+
+# Initial states of known state variables, in the order of the ODE equations that they belong to (as defined below). 
+# Example: < stateOKnownList = [A_init] >
+#
+stateOKnownList = [Agutlumen_i, Agut_i, Aliver_i, Abile_i, Akidney_i, Afilterate_i, Adelay_i, Afat_i, Arestbody_i, Aurine_i, Aplasma_i]
+
+# Names of the initial states of known state variables, in the order of <stateOKnownList>. 
+# Example: < stateOKnownNameList = ['A_init'] >
+#
+stateOKnownNameList = ["Agutlumen_i", "Agut_i", "Aliver_i", "Abile_i", "Akidney_i", "Afilterate_i", "Adelay_i", "Afat_i", "Arestbody_i", "Aurine_i", "Aplasma_i"]
+
+# All initial states in the same order as <stateList>. 
+# Example: < allIniStatesList = ['A_init','B_init','C_init'] >
+#
+allIniStatesList = ["Agutlumen_i", "Agut_i", "Aliver_i", "Abile_i", "Akidney_i", "Afilterate_i", "Adelay_i", "Afat_i", "Arestbody_i", "Aurine_i", "Aplasma_i"]
+
+# Name of the functions containing the observables. This should correspond to the function names as
+# defined in the section with the ODEs below. Use a "g" and then an index number starting at 0.
+# Example: < obsList = ["g0","g1","g2"] >
+#
+obsList = ["g0"]
+
+# Names of the observed state variables, as denoted in the data set in column <stateVarName>.
+# Example: < obsStateVarList = ['A','B','C'] >
+#
+obsStateVarList = ["cplasma"] 
+
+# Star parameters, i.e. the parameters that can be described as functions of snow parameters 
+# (the union set of the initial or steady states and the free parameters). 
+# For every star parameter, there should be a constraint function fR1, ..., fRn defined in the ODE section below.
+# The list should be in the same order as the steady state constraint functions fR1, ..., fRn. These functions are defined
+# at the bottom of this file in the ODE section.
+# Important - Parameter names should not include names of the state variables (case sensitive)!
+# Example: < paraStarList = ["ksa", "ksb", "kdc"] > for which ksa should then be defined by fR1, ksb by fR2, and kdc by f3R.
+#
+paraStarList = [] 
+
+# Scaling and offset parameters
+# Example: < paraSO = ["sf_a","o_a"] >
+#
+paraSO = [] 
+
+# Snow parameters, i.e. the free parameters except for the initial or steady state variables. The order doesn't matter here.
+# Important - Parameter names should not include names of the state variables (case sensitive)!
+# Example: < paraSnowList = ["kda", "kdb", "ksc"] >
+#
+paraSnowList = ["fugut", "VmaxM", "KmM"] + paraSO
+
+# Dose parameters that need to be estimated
+# Example: < doseParmsList = ["conc2", "conc3"] >
+#
+doseParmsList = []
+
+# Names of all dose parameters
+# Example: < doseNames = ["conc1", "conc2", "conc3"] >
+#
+doseNames = ["EC1"]
+
+# Pharmacokinetic parameters. If the stress input is a numerical function with <doseFunctionType = "expDecay">, this should be "tau1"
+# Example: < PKparms = ["tau1"] >
+#
+PKparms = []
+
+# Optional: upper and lower bounds in the order of:
+# state variables for estimation (Nse), 
+# dose parameters (Nd), 
+# pharmacokinetic parameters (Npk) and 
+# snow parameters for estimation (Nsnow)
+# For each parameter, you can indicate the lower bound (lbound) or upper bound (ubound).
+# Indicate the index position (for Python, i.e. start counting at 0) of the parameter 
+# and the corresponding bound on log scale as list: [index,np.log(bound)]. 
+# If not applicable, this can be omitted completely.
+# Example: < lbounds = [[4,-np.inf]]
+#            ubounds = [[4,np.log(1)]] >
+#
+# Bounds for ER_init, EC2 and EC3
+lbounds = [[0, -np.inf]]
+ubounds = [[0, 0]]
+
+# Optional: priors, i.e. starting position for a parameter before calibration in the order of:
+# state variables for estimation (Nse), 
+# dose parameters (Nd), 
+# pharmacokinetic parameters (Npk) and 
+# snow parameters for estimation (Nsnow)
+# Indicate the index position (for Python, i.e. start counting at 0) of the parameter 
+# and the corresponding prior on linear scale as list: [index,prior]. 
+# MUST be specified for parameters for which lower and upper bounds are specified above
+# and where the interval [lbound, ubound] does not fully contain the [0,1] interval.
+# If not applicable, this can be omitted completely.
+# Example: < priors = [[0,1],[4,0]] >
+#priors = []
+
+####END_PARAMETERS####
+
+####START_ODES####
+
+# Set of ODE equations. 
+# Every ODE should be numbered with "f" and an index number starting at 0.
+# Example: < f0 = ksa - kda * A
+#            f1 = ksb - kdb * B
+#            f2 = ksc * A * B - kdc * C >
+#
+
+f0 = -kgutabs*Agutlumen + S - kfeces*Agutlumen + kbile*Abile
+f1 = kgutabs*Agutlumen + Qgut*(Aplasma/vplasma)*(fu/kbp)- Qgut*(Agut/vgut)*((fugut/kbp)/Kgut_plasma)                        
+f2 = Qliver*(Aplasma/vplasma)*(fu/kbp) + Qgut*(Agut/vgut)*((fugut/kbp)/Kgut_plasma) - (Qliver +Qgut)*(Aliver/vliver)*((fu/kbp)/Kliver_plasma) - VmaxM*(Aliver/vliver)*(fu)/((Aliver/vliver)*(fu)+KmM) - (Vehr*(Aliver/vliver)*fu)/(Kehr + (Aliver/vliver)*fu) 
+f3 = (Vehr*(Aliver/vliver)*fu)/(Kehr + (Aliver/vliver)*fu) - kbile*Abile
+f4 = Qkidney*(Aplasma/vplasma)*(fu/kbp) - Qkidney*(Akidney/vkidney)*((fu/kbp)/Kkidney_plasma) - Qfilterate*(Akidney/vkidney)*((fu/kbp)/Kkidney_plasma)+ Tr*(Afilterate/vfilterate)- (Tm*((Akidney/vkidney)*((fu/kbp)/Kkidney_plasma)))/(Kt+((Akidney/vkidney)*((fu/kbp)/Kkidney_plasma)))
+f5 = Qfilterate*(Akidney/vkidney)*((fu/kbp)/Kkidney_plasma) - Qfilterate*(Afilterate/vfilterate) - Tr*(Afilterate/vfilterate)+ (Tm*((Akidney/vkidney)*((fu/kbp)/Kkidney_plasma)))/(Kt+((Akidney/vkidney)*((fu/kbp)/Kkidney_plasma)))
+f6  = Qfilterate*(Afilterate/vfilterate)- Qurine *Adelay
+f7 = Qfat*(Aplasma/vplasma)*(fu/kbp) - Qfat*(Afat/vfat)*((fu/kbp)/Kfat_plasma)    
+f8 = Qrestbody*(Aplasma/vplasma)*(fu/kbp) - Qrestbody*(Arestbody/vrestbody)*((fu/kbp)/Krestbody_plasma)
+f9 = Qurine*Adelay
+f10 = (Qliver +Qgut)*(Aliver/vliver)*((fu/kbp)/Kliver_plasma)+ Qkidney*(Akidney/vkidney)*((fu/kbp)/Kkidney_plasma) + Qfat*(Afat/vfat)*((fu/kbp)/Kfat_plasma)+ Qrestbody*(Arestbody/vrestbody)*((fu/kbp)/Krestbody_plasma)- QCplasma*(Aplasma/vplasma)*(fu/kbp)
+            
+
+# Steady state constraints
+# Every constraint should be numbered with "fR" and an index number starting at 1.
+# Example: < fR1 = kda * A
+#            fR2 = kdb * B 
+#            fR3 = ksc * A_init * B_init / C_init >
+#
+
+
+# Equations for the observables, that can contain the scaling and offset functions
+# Every equation should be numbered with "g" and an index number starting at 0.
+# Example: < g0 = sf_a * A + o_a 
+#            g1 = B
+#            g2 = C >
+#
+g0 = Aplasma/vplasma
+
+####END_ODES####
