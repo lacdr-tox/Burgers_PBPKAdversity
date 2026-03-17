@@ -1,0 +1,21 @@
+BARCODE,EXP_ID,GROUP_ID,INDIVIDUAL_ID,COMPOUND_NAME,DOSE_LEVEL,SACRIFICE_PERIOD,ORGAN,FINDING_TYPE,TOPOGRAPHY_TYPE,GRADE_TYPE,SP_FLG
+003017640017,0632,02,2,diclofenac,Control,6 hr,Liver,Necrosis,,minimal,t
+003017640029,0632,03,2,diclofenac,Control,9 hr,Liver,Necrosis,,minimal,t
+No ChipData,0149,02,2,diclofenac,Control,8 day,Liver,Cellular infiltration,,minimal,t
+No ChipData,0149,02,2,diclofenac,Control,8 day,Liver,Necrosis,,minimal,t
+003017722001,0149,03,4,diclofenac,Control,15 day,Liver,Cellular infiltration,,minimal,t
+003017722011,0149,04,2,diclofenac,Control,29 day,Liver,Cellular infiltration,,minimal,t
+No ChipData,0149,06,2,diclofenac,Low,8 day,Liver,Cellular infiltration,,minimal,t
+003017721021,0149,06,3,diclofenac,Low,8 day,Liver,Cellular infiltration,,minimal,t
+No ChipData,0149,06,2,diclofenac,Low,8 day,Liver,Necrosis,,minimal,t
+003017722003,0149,07,4,diclofenac,Low,15 day,Liver,Cellular infiltration,,minimal,t
+003017721013,0149,09,4,diclofenac,Middle,4 day,Liver,Necrosis,,minimal,t
+003017721013,0149,09,4,diclofenac,Middle,4 day,Liver,"Nodule, hepatodiaphragmatic",,minimal,t
+003017721023,0149,10,2,diclofenac,Middle,8 day,Liver,Necrosis,,minimal,t
+003017722019,0149,12,5,diclofenac,Middle,29 day,Liver,Cellular infiltration,,minimal,t
+No ChipData,0149,14,1,diclofenac,High,8 day,Liver,Cellular infiltration,,minimal,t
+003017721028,0149,14,5,diclofenac,High,8 day,Liver,Scar,,minimal,t
+No ChipData,0149,15,1,diclofenac,High,15 day,Liver,Cellular infiltration,,minimal,t
+003017722009,0149,15,3,diclofenac,High,15 day,Liver,Cellular infiltration,,minimal,t
+003017722010,0149,15,5,diclofenac,High,15 day,Liver,Cellular infiltration,,minimal,t
+No ChipData,0149,15,4,diclofenac,High,15 day,Liver,Cellular infiltration,Portal,minimal,t

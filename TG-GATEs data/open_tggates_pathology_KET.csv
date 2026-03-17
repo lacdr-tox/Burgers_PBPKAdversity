@@ -1,0 +1,42 @@
+BARCODE,EXP_ID,GROUP_ID,INDIVIDUAL_ID,COMPOUND_NAME,DOSE_LEVEL,SACRIFICE_PERIOD,ORGAN,FINDING_TYPE,TOPOGRAPHY_TYPE,GRADE_TYPE,SP_FLG
+No ChipData,0231,11,1,ketoconazole,Middle,15 day,Liver,Hypertrophy,Centrilobular,slight,f
+003017017014,0231,11,3,ketoconazole,Middle,15 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",slight,f
+No ChipData,0231,12,2,ketoconazole,Middle,29 day,Liver,Hypertrophy,Centrilobular,slight,f
+003017017025,0231,12,3,ketoconazole,Middle,29 day,Liver,Hypertrophy,Centrilobular,slight,f
+003017017027,0231,12,5,ketoconazole,Middle,29 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",minimal,f
+No ChipData,0231,12,1,ketoconazole,Middle,29 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",slight,f
+No ChipData,0231,12,2,ketoconazole,Middle,29 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",slight,f
+003017017025,0231,12,3,ketoconazole,Middle,29 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",slight,f
+003017017026,0231,12,4,ketoconazole,Middle,29 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",slight,f
+003017012029,0230,16,2,ketoconazole,High,24 hr,Liver,Increased mitosis,Hepatocyte,slight,f
+003017012030,0230,16,3,ketoconazole,High,24 hr,Liver,Increased mitosis,Hepatocyte,slight,f
+003017013002,0230,16,5,ketoconazole,High,24 hr,Liver,Increased mitosis,Hepatocyte,slight,f
+No ChipData,0231,13,1,ketoconazole,High,4 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",slight,f
+003017033016,0231,13,2,ketoconazole,High,4 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",slight,f
+No ChipData,0231,13,3,ketoconazole,High,4 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",slight,f
+003017033017,0231,13,4,ketoconazole,High,4 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",slight,f
+003017033018,0231,13,5,ketoconazole,High,4 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",slight,f
+No ChipData,0231,14,1,ketoconazole,High,8 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",slight,f
+003017033028,0231,14,2,ketoconazole,High,8 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",slight,f
+003017033029,0231,14,3,ketoconazole,High,8 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",slight,f
+No ChipData,0231,14,4,ketoconazole,High,8 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",slight,f
+003017033030,0231,14,5,ketoconazole,High,8 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",slight,f
+003017017016,0231,15,1,ketoconazole,High,15 day,Liver,Hypertrophy,Centrilobular,slight,f
+No ChipData,0231,15,2,ketoconazole,High,15 day,Liver,Hypertrophy,Centrilobular,slight,f
+No ChipData,0231,15,4,ketoconazole,High,15 day,Liver,Hypertrophy,Centrilobular,slight,f
+003017017018,0231,15,5,ketoconazole,High,15 day,Liver,Hypertrophy,Centrilobular,slight,f
+003017017017,0231,15,3,ketoconazole,High,15 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",slight,f
+No ChipData,0231,15,4,ketoconazole,High,15 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",slight,f
+003017017016,0231,15,1,ketoconazole,High,15 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",moderate,f
+No ChipData,0231,15,2,ketoconazole,High,15 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",moderate,f
+003017017018,0231,15,5,ketoconazole,High,15 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",moderate,f
+No ChipData,0231,16,1,ketoconazole,High,29 day,Liver,Hypertrophy,Centrilobular,slight,f
+No ChipData,0231,16,2,ketoconazole,High,29 day,Liver,Hypertrophy,Centrilobular,slight,f
+003017017028,0231,16,3,ketoconazole,High,29 day,Liver,Hypertrophy,Centrilobular,slight,f
+003017017029,0231,16,4,ketoconazole,High,29 day,Liver,Hypertrophy,Centrilobular,slight,f
+003017017030,0231,16,5,ketoconazole,High,29 day,Liver,Hypertrophy,Centrilobular,slight,f
+No ChipData,0231,16,1,ketoconazole,High,29 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",moderate,f
+No ChipData,0231,16,2,ketoconazole,High,29 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",moderate,f
+003017017028,0231,16,3,ketoconazole,High,29 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",moderate,f
+003017017029,0231,16,4,ketoconazole,High,29 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",moderate,f
+003017017030,0231,16,5,ketoconazole,High,29 day,Liver,"Vacuolization, cytoplasmic","Bile duct, interlobular",moderate,f

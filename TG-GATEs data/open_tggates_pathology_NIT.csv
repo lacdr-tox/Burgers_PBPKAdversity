@@ -1,0 +1,28 @@
+BARCODE,EXP_ID,GROUP_ID,INDIVIDUAL_ID,COMPOUND_NAME,DOSE_LEVEL,SACRIFICE_PERIOD,ORGAN,FINDING_TYPE,TOPOGRAPHY_TYPE,GRADE_TYPE,SP_FLG
+No ChipData,0151,02,2,nitrofurantoin,Control,8 day,Liver,Cellular infiltration,,minimal,t
+No ChipData,0151,03,2,nitrofurantoin,Control,15 day,Liver,Cellular infiltration,,minimal,t
+No ChipData,0151,03,4,nitrofurantoin,Control,15 day,Liver,Cellular infiltration,,minimal,t
+003017745005,0151,03,5,nitrofurantoin,Control,15 day,Liver,Cellular infiltration,,minimal,t
+No ChipData,0151,04,1,nitrofurantoin,Control,29 day,Liver,Cellular infiltration,,minimal,t
+No ChipData,0151,04,3,nitrofurantoin,Control,29 day,Liver,Cellular infiltration,,minimal,t
+003017745016,0151,04,4,nitrofurantoin,Control,29 day,Liver,Cellular infiltration,,minimal,t
+003017745017,0151,04,5,nitrofurantoin,Control,29 day,Liver,Cellular infiltration,,minimal,t
+No ChipData,0151,06,3,nitrofurantoin,Low,8 day,Liver,Cellular infiltration,,minimal,t
+003017745018,0151,08,1,nitrofurantoin,Low,29 day,Liver,Cellular infiltration,,minimal,t
+003017745020,0151,08,3,nitrofurantoin,Low,29 day,Liver,Cellular infiltration,,minimal,t
+No ChipData,0151,08,5,nitrofurantoin,Low,29 day,Liver,Cellular infiltration,,minimal,t
+003017744015,0151,09,1,nitrofurantoin,Middle,4 day,Liver,Cellular infiltration,,minimal,t
+No ChipData,0151,10,3,nitrofurantoin,Middle,8 day,Liver,Cellular infiltration,,minimal,t
+003017745010,0151,11,3,nitrofurantoin,Middle,15 day,Liver,Cellular infiltration,,minimal,t
+003017745011,0151,11,4,nitrofurantoin,Middle,15 day,Liver,Cellular infiltration,,minimal,t
+003017745009,0151,11,1,nitrofurantoin,Middle,15 day,Liver,Necrosis,,minimal,t
+No ChipData,0151,12,4,nitrofurantoin,Middle,29 day,Liver,Cellular infiltration,,minimal,t
+003017744020,0151,13,4,nitrofurantoin,High,4 day,Liver,Cellular infiltration,,minimal,t
+003017745002,0151,14,4,nitrofurantoin,High,8 day,Liver,Cellular infiltration,,minimal,t
+003017744030,0151,14,1,nitrofurantoin,High,8 day,Liver,Cellular infiltration,Portal,minimal,t
+No ChipData,0151,14,5,nitrofurantoin,High,8 day,Liver,Cellular infiltration,Portal,minimal,t
+No ChipData,0151,15,2,nitrofurantoin,High,15 day,Liver,Cellular infiltration,,minimal,t
+003017745012,0151,15,3,nitrofurantoin,High,15 day,Liver,Cellular infiltration,,minimal,t
+003017745013,0151,15,4,nitrofurantoin,High,15 day,Liver,Cellular infiltration,,minimal,t
+003017745025,0151,16,3,nitrofurantoin,High,29 day,Liver,Cellular infiltration,,minimal,t
+No ChipData,0151,16,5,nitrofurantoin,High,29 day,Liver,Cellular infiltration,,minimal,t
